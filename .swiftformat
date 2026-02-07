@@ -1,0 +1,10 @@
+# SwiftFormat configuration
+--swiftversion 5.9
+--indent 2
+--tabwidth 2
+--wraparguments beforefirst
+--wrapparameters beforefirst
+--wrapcollections beforefirst
+--trimwhitespace always
+--stripunusedargs closure-only
+--disable redundantSelf

@@ -1,0 +1,29 @@
+---
+alwaysApply: true
+---
+
+Suggest using specialized subagents when appropriate (do not auto-run them).
+
+Only suggest once per issue unless new evidence appears (new stack trace, new failing test output, new repro step, or new code changes).
+
+Token-safety / anti-loop guardrails:
+- Do not propose repeated cycles by default. Make one best attempt, then stop.
+- Never suggest re-running tests more than once without new code changes.
+- Ask for confirmation before any additional debugging iterations, additional test runs, or expanding test scope.
+
+Subagent suggestion routing:
+
+- Suggest `debugger` when the user message includes crashes, stack traces, runtime exceptions, or build/runtime errors (e.g., "error:", "fatal", "crash", "stack trace", "SIGABRT", "Thread", Swift runtime exceptions).
+- Suggest `test-runner` when code changes are made, or when there is test/build output (e.g., "XCTest", "Test Suite", "FAILED", "xcodebuild", failing assertions).
+- Suggest `verifier` when work is claimed complete and needs validation.
+- Suggest `security-auditor` when implementing auth, payments, or handling sensitive data.
+
+Project schemes:
+- Do NOT hardcode scheme names.
+- Discover the repo’s current schemes from Xcode before suggesting test commands.
+  - Prefer listing schemes via `xcodebuild -list` against the repo’s `.xcworkspace` (if present), otherwise the `.xcodeproj`.
+  - Then pick the relevant scheme(s) based on what changed.
+
+When suggesting tests, prefer a copy/pasteable plan:
+- Run tests for the relevant scheme(s) based on what changed.
+- Report pass/fail counts and a short failure summary.

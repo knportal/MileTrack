@@ -1,0 +1,617 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		B99A58AD2F317A5900C6E48B /* Subscriptions.storekit in Resources */ = {isa = PBXBuildFile; fileRef = B99A58AC2F317A5900C6E48B /* Subscriptions.storekit */; };
+		B99A58AE2F317A5900C6E48B /* Subscriptions.storekit in Resources */ = {isa = PBXBuildFile; fileRef = B99A58AC2F317A5900C6E48B /* Subscriptions.storekit */; };
+		B99A58AF2F317A5900C6E48B /* Subscriptions.storekit in Resources */ = {isa = PBXBuildFile; fileRef = B99A58AC2F317A5900C6E48B /* Subscriptions.storekit */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		B90C24D72F31052F008EA030 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = B90C24BF2F31052E008EA030 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = B90C24C62F31052E008EA030;
+			remoteInfo = MileTrack;
+		};
+		B90C24E12F31052F008EA030 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = B90C24BF2F31052E008EA030 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = B90C24C62F31052E008EA030;
+			remoteInfo = MileTrack;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		B90C24C72F31052E008EA030 /* MileTrack.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MileTrack.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		B90C24D62F31052F008EA030 /* MileTrackTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MileTrackTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		B90C24E02F31052F008EA030 /* MileTrackUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MileTrackUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		B99A58AC2F317A5900C6E48B /* Subscriptions.storekit */ = {isa = PBXFileReference; lastKnownFileType = text; path = Subscriptions.storekit; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		B99A58C32F31900F00C6E48B /* Exceptions for "MileTrack" folder in "MileTrack" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = B90C24C62F31052E008EA030 /* MileTrack */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		B90C24C92F31052E008EA030 /* MileTrack */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				B99A58C32F31900F00C6E48B /* Exceptions for "MileTrack" folder in "MileTrack" target */,
+			);
+			path = MileTrack;
+			sourceTree = "<group>";
+		};
+		B90C24D92F31052F008EA030 /* MileTrackTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = MileTrackTests;
+			sourceTree = "<group>";
+		};
+		B90C24E32F31052F008EA030 /* MileTrackUITests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = MileTrackUITests;
+			sourceTree = "<group>";
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		B90C24C42F31052E008EA030 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B90C24D32F31052F008EA030 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B90C24DD2F31052F008EA030 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		B90C24BE2F31052D008EA030 = {
+			isa = PBXGroup;
+			children = (
+				B99A58AC2F317A5900C6E48B /* Subscriptions.storekit */,
+				B90C24C92F31052E008EA030 /* MileTrack */,
+				B90C24D92F31052F008EA030 /* MileTrackTests */,
+				B90C24E32F31052F008EA030 /* MileTrackUITests */,
+				B90C24C82F31052E008EA030 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		B90C24C82F31052E008EA030 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				B90C24C72F31052E008EA030 /* MileTrack.app */,
+				B90C24D62F31052F008EA030 /* MileTrackTests.xctest */,
+				B90C24E02F31052F008EA030 /* MileTrackUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		B90C24C62F31052E008EA030 /* MileTrack */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B90C24EA2F31052F008EA030 /* Build configuration list for PBXNativeTarget "MileTrack" */;
+			buildPhases = (
+				B90C24C32F31052E008EA030 /* Sources */,
+				B90C24C42F31052E008EA030 /* Frameworks */,
+				B90C24C52F31052E008EA030 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				B90C24C92F31052E008EA030 /* MileTrack */,
+			);
+			name = MileTrack;
+			packageProductDependencies = (
+			);
+			productName = MileTrack;
+			productReference = B90C24C72F31052E008EA030 /* MileTrack.app */;
+			productType = "com.apple.product-type.application";
+		};
+		B90C24D52F31052F008EA030 /* MileTrackTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B90C24ED2F31052F008EA030 /* Build configuration list for PBXNativeTarget "MileTrackTests" */;
+			buildPhases = (
+				B90C24D22F31052F008EA030 /* Sources */,
+				B90C24D32F31052F008EA030 /* Frameworks */,
+				B90C24D42F31052F008EA030 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				B90C24D82F31052F008EA030 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				B90C24D92F31052F008EA030 /* MileTrackTests */,
+			);
+			name = MileTrackTests;
+			packageProductDependencies = (
+			);
+			productName = MileTrackTests;
+			productReference = B90C24D62F31052F008EA030 /* MileTrackTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		B90C24DF2F31052F008EA030 /* MileTrackUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B90C24F02F31052F008EA030 /* Build configuration list for PBXNativeTarget "MileTrackUITests" */;
+			buildPhases = (
+				B90C24DC2F31052F008EA030 /* Sources */,
+				B90C24DD2F31052F008EA030 /* Frameworks */,
+				B90C24DE2F31052F008EA030 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				B90C24E22F31052F008EA030 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				B90C24E32F31052F008EA030 /* MileTrackUITests */,
+			);
+			name = MileTrackUITests;
+			packageProductDependencies = (
+			);
+			productName = MileTrackUITests;
+			productReference = B90C24E02F31052F008EA030 /* MileTrackUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		B90C24BF2F31052E008EA030 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 2610;
+				LastUpgradeCheck = 2620;
+				TargetAttributes = {
+					B90C24C62F31052E008EA030 = {
+						CreatedOnToolsVersion = 26.1.1;
+					};
+					B90C24D52F31052F008EA030 = {
+						CreatedOnToolsVersion = 26.1.1;
+						TestTargetID = B90C24C62F31052E008EA030;
+					};
+					B90C24DF2F31052F008EA030 = {
+						CreatedOnToolsVersion = 26.1.1;
+						TestTargetID = B90C24C62F31052E008EA030;
+					};
+				};
+			};
+			buildConfigurationList = B90C24C22F31052E008EA030 /* Build configuration list for PBXProject "MileTrack" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = B90C24BE2F31052D008EA030;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = B90C24C82F31052E008EA030 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				B90C24C62F31052E008EA030 /* MileTrack */,
+				B90C24D52F31052F008EA030 /* MileTrackTests */,
+				B90C24DF2F31052F008EA030 /* MileTrackUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		B90C24C52F31052E008EA030 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B99A58AD2F317A5900C6E48B /* Subscriptions.storekit in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B90C24D42F31052F008EA030 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B99A58AE2F317A5900C6E48B /* Subscriptions.storekit in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B90C24DE2F31052F008EA030 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B99A58AF2F317A5900C6E48B /* Subscriptions.storekit in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		B90C24C32F31052E008EA030 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B90C24D22F31052F008EA030 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B90C24DC2F31052F008EA030 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		B90C24D82F31052F008EA030 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = B90C24C62F31052E008EA030 /* MileTrack */;
+			targetProxy = B90C24D72F31052F008EA030 /* PBXContainerItemProxy */;
+		};
+		B90C24E22F31052F008EA030 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = B90C24C62F31052E008EA030 /* MileTrack */;
+			targetProxy = B90C24E12F31052F008EA030 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		B90C24E82F31052F008EA030 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = C8SXTF2Y53;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		B90C24E92F31052F008EA030 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = C8SXTF2Y53;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		B90C24EB2F31052F008EA030 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = C8SXTF2Y53;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = MileTrack/Info.plist;
+				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "Auto Mode uses background location to detect drives and prevent missed mileage. Location is used to estimate distance and create trips for your Inbox.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "MileTrack uses your location while the app is open to detect drives and estimate mileage. For best Auto Mode results, you can allow Always access.";
+				INFOPLIST_KEY_NSMotionUsageDescription = "MileTrack uses motion activity to detect when you start and stop driving for Auto Mode.";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = knportal.MileTrack;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		B90C24EC2F31052F008EA030 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = C8SXTF2Y53;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = MileTrack/Info.plist;
+				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "Auto Mode uses background location to detect drives and prevent missed mileage. Location is used to estimate distance and create trips for your Inbox.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "MileTrack uses your location while the app is open to detect drives and estimate mileage. For best Auto Mode results, you can allow Always access.";
+				INFOPLIST_KEY_NSMotionUsageDescription = "MileTrack uses motion activity to detect when you start and stop driving for Auto Mode.";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = knportal.MileTrack;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		B90C24EE2F31052F008EA030 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = C8SXTF2Y53;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = knportal.MileTrackTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MileTrack.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/MileTrack";
+			};
+			name = Debug;
+		};
+		B90C24EF2F31052F008EA030 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = C8SXTF2Y53;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = knportal.MileTrackTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MileTrack.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/MileTrack";
+			};
+			name = Release;
+		};
+		B90C24F12F31052F008EA030 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = C8SXTF2Y53;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = knportal.MileTrackUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = MileTrack;
+			};
+			name = Debug;
+		};
+		B90C24F22F31052F008EA030 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = C8SXTF2Y53;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = knportal.MileTrackUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = MileTrack;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		B90C24C22F31052E008EA030 /* Build configuration list for PBXProject "MileTrack" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B90C24E82F31052F008EA030 /* Debug */,
+				B90C24E92F31052F008EA030 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		B90C24EA2F31052F008EA030 /* Build configuration list for PBXNativeTarget "MileTrack" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B90C24EB2F31052F008EA030 /* Debug */,
+				B90C24EC2F31052F008EA030 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		B90C24ED2F31052F008EA030 /* Build configuration list for PBXNativeTarget "MileTrackTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B90C24EE2F31052F008EA030 /* Debug */,
+				B90C24EF2F31052F008EA030 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		B90C24F02F31052F008EA030 /* Build configuration list for PBXNativeTarget "MileTrackUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B90C24F12F31052F008EA030 /* Debug */,
+				B90C24F22F31052F008EA030 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = B90C24BF2F31052E008EA030 /* Project object */;
+}
