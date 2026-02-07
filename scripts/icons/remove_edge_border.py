@@ -1,0 +1,163 @@
+#!/usr/bin/env python3
+"""
+Script to remove white edge borders from app icon images.
+Specifically targets white pixels at the edges of the image.
+"""
+
+import os
+import sys
+from PIL import Image
+import numpy as np
+
+def remove_edge_border(image_path, output_path, border_width=3, threshold=240):
+    """
+    Remove white borders from the edges of an image.
+
+    Args:
+        image_path: Path to input image
+        output_path: Path to save processed image
+        border_width: Width of border to check/remove (default 3 pixels)
+        threshold: RGB threshold for "white" (0-255, default 240)
+    """
+    try:
+        # Open image
+        img = Image.open(image_path)
+
+        # Convert to RGBA if not already
+        if img.mode != 'RGBA':
+            img = img.convert('RGBA')
+
+        # Convert to numpy array for processing
+        data = np.array(img)
+        height, width = data.shape[:2]
+
+        # Create mask for white pixels
+        white_mask = (data[:, :, 0] > threshold) & \
+                    (data[:, :, 1] > threshold) & \
+                    (data[:, :, 2] > threshold)
+
+        # Create edge mask - only white pixels at the edges
+        edge_mask = np.zeros_like(white_mask, dtype=bool)
+
+        # Top edge
+        edge_mask[:border_width, :] = white_mask[:border_width, :]
+        # Bottom edge
+        edge_mask[-border_width:, :] = white_mask[-border_width:, :]
+        # Left edge
+        edge_mask[:, :border_width] |= white_mask[:, :border_width]
+        # Right edge
+        edge_mask[:, -border_width:] |= white_mask[:, -border_width:]
+
+        # Make edge white pixels transparent
+        data[edge_mask, 3] = 0  # Set alpha to 0 for edge white pixels
+
+        # Alternative: Crop the image to remove the border entirely
+        # Find the actual content bounds (non-white, non-transparent)
+        # This is more aggressive but ensures border removal
+        alpha_channel = data[:, :, 3]
+        content_mask = alpha_channel > 0
+
+        if np.any(content_mask):
+            # Find bounding box of content
+            rows = np.any(content_mask, axis=1)
+            cols = np.any(content_mask, axis=0)
+
+            if np.any(rows) and np.any(cols):
+                top = np.argmax(rows)
+                bottom = len(rows) - np.argmax(rows[::-1])
+                left = np.argmax(cols)
+                right = len(cols) - np.argmax(cols[::-1])
+
+                # Add small padding to avoid cutting too close
+                padding = 2
+                top = max(0, top - padding)
+                bottom = min(height, bottom + padding)
+                left = max(0, left - padding)
+                right = min(width, right + padding)
+
+                # Crop to content bounds
+                data = data[top:bottom, left:right]
+
+                # If we cropped, we need to resize back to original size
+                # or create a new image with transparent background
+                if data.shape[0] != height or data.shape[1] != width:
+                    # Create new image with transparent background at original size
+                    new_data = np.zeros((height, width, 4), dtype=np.uint8)
+                    # Center the cropped content
+                    crop_h, crop_w = data.shape[:2]
+                    start_y = (height - crop_h) // 2
+                    start_x = (width - crop_w) // 2
+                    new_data[start_y:start_y+crop_h, start_x:start_x+crop_w] = data
+                    data = new_data
+
+        # Convert back to PIL Image
+        result = Image.fromarray(data)
+
+        # Save result
+        result.save(output_path, 'PNG', optimize=True)
+        print(f"✓ Processed: {os.path.basename(image_path)}")
+        return True
+
+    except Exception as e:
+        print(f"✗ Error processing {image_path}: {e}")
+        import traceback
+        traceback.print_exc()
+        return False
+
+def process_icon_set(icon_set_path, output_path=None):
+    """
+    Process all PNG files in an icon set directory.
+
+    Args:
+        icon_set_path: Path to .appiconset directory
+        output_path: Optional output directory (defaults to same location with _noborder suffix)
+    """
+    if not os.path.exists(icon_set_path):
+        print(f"Error: Directory not found: {icon_set_path}")
+        return False
+
+    # Get all PNG files
+    png_files = [f for f in os.listdir(icon_set_path) if f.endswith('.png')]
+
+    if not png_files:
+        print(f"No PNG files found in {icon_set_path}")
+        return False
+
+    print(f"Found {len(png_files)} icon files to process...")
+    print(f"Processing icons in: {icon_set_path}\n")
+
+    # Process each file
+    success_count = 0
+    for png_file in png_files:
+        input_path = os.path.join(icon_set_path, png_file)
+
+        if output_path:
+            os.makedirs(output_path, exist_ok=True)
+            output_file = os.path.join(output_path, png_file)
+        else:
+            # Backup original and replace
+            backup_path = input_path + '.backup'
+            if not os.path.exists(backup_path):
+                os.rename(input_path, backup_path)
+            output_file = input_path
+
+        if remove_edge_border(input_path if not output_path else input_path, output_file):
+            success_count += 1
+
+    print(f"\n✓ Successfully processed {success_count}/{len(png_files)} icons")
+    return success_count == len(png_files)
+
+if __name__ == '__main__':
+    if len(sys.argv) < 2:
+        print("Usage: python3 remove_edge_border.py <icon_set_path> [output_path]")
+        print("\nExample:")
+        print("  python3 remove_edge_border.py Plena/Assets.xcassets/AppIcon.appiconset")
+        print("  python3 remove_edge_border.py ../PlenaRoundedAppIcon_v2.appiconset ./output")
+        sys.exit(1)
+
+    icon_set = sys.argv[1]
+    output_dir = sys.argv[2] if len(sys.argv) > 2 else None
+
+    process_icon_set(icon_set, output_dir)
+
+

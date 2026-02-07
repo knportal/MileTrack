@@ -1,0 +1,58 @@
+TestFlight Testing - What to Test
+
+Thank you for helping test {{APP_NAME}}! This beta tracks your biometric data during mindfulness sessions. Focus on the following:
+
+iPhone App Testing
+
+First Launch: Accept disclaimer, grant HealthKit permissions (read: heart rate, HRV, respiratory rate, temperature, VO2 Max; write: mindfulness sessions). Verify app handles permission denial gracefully.
+
+Mindfulness Sessions: Start session from Session tab, verify 3-2-1 countdown. Check real-time biometric tracking (heart rate, HRV, respiratory rate). Verify stress zones update (Blue=Calm, Green=Optimal, Orange=Elevated). Stop session and verify it saves. Log "State of Mind" after session. Confirm session appears in Dashboard.
+
+Dashboard: Review statistics (total sessions, session time, streak). Test time ranges: Day, Week, Month, Year. Verify charts display correctly. Check HRV insights appear with 3+ sessions. Test session frequency and duration trends.
+
+Data Visualization: Navigate Data tab, test time ranges. Verify sensor charts display correctly. Check range indicators (above/normal/below). Test Consistency and Trend view modes. Verify interactive chart features work.
+
+Readiness Score: Verify daily score calculates correctly. Check contributor breakdowns (Resting HR, HRV Balance, Temperature, Recovery, Sleep). Compare today vs yesterday. Tap contributors for detailed analysis.
+
+Apple Watch App Testing
+
+Watch Launch: Launch app on Watch, verify independent operation. Check HealthKit permissions sync from iPhone.
+
+Watch Sessions: Start session from Watch, verify 3-2-1 countdown. Check real-time sensor readings display. Scroll through sensors during session. Verify stress zone indicators. Stop session and confirm syncs to iPhone.
+
+Watch Dashboard: Check statistics display correctly. Verify data from iPhone sessions appears.
+
+Data Sync & Persistence
+
+Cross-Device Sync: Start session on Watch, verify appears on iPhone (within seconds). Start session on iPhone, verify appears on Watch. Check CloudKit sync if iCloud enabled. Verify data persists after app restarts.Historical Data: Test importing existing HealthKit data. Verify old sessions appear in dashboard and data views.
+
+Edge Cases
+
+Missing Data: Test with no HealthKit data available. Verify graceful handling of missing sensors (older Watch models). Test with partial HealthKit permissions.
+
+Network Issues: Test with iCloud/CloudKit disabled. Verify app works without network connectivity.
+
+Watch Compatibility: Series 4+ (HRV), Series 6+ (Respiratory), Series 8/Ultra+ (Temperature), All Series 1+ (Heart rate).
+
+UI/UX Testing
+
+Navigation: Test all tabs (Session, Dashboard, Data). Verify smooth transitions. Check back buttons work. Verify stress zone colors are clear. Check charts are readable and interactive.
+
+Performance: Verify quick app launch. Check sessions start/stop without lag. Test scrolling in data views. Verify dashboard loads efficiently.
+
+Known Limitations
+
+- HealthKit requires physical devices (simulators won't work)
+- Sensor availability depends on Watch model
+- First session may take a moment to establish readings
+- HRV insights require 3+ sessions with HRV data
+
+What to Report
+
+Please report: crashes/freezes, incorrect biometric readings, sessions not saving/syncing, unresponsive UI, chart display issues, permission problems, Watch-iPhone sync failures, confusing UI elements, performance issues.
+
+Test Duration
+
+Test over 2-3 days to complete multiple sessions, verify data persistence, check streak tracking, validate readiness scores, and test cross-device syncing thoroughly.
+
+Thank you for your valuable feedback!
