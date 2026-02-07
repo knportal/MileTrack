@@ -1,0 +1,50 @@
+{{APP_NAME}}: Mindfulness Tracking with Real-Time Biometrics
+
+{{APP_NAME}} is a mindfulness tracking application for iPhone and Apple Watch that monitors your biometric data in real time during mindfulness sessions. Track heart rate, HRV, respiratory rate, and other vital signs to understand how your body responds to mindfulness practice.
+
+The Triangle: Mind, Breath, Body
+
+The triangle represents three core rhythms: Heart Rate reflects moment-to-moment activity, HRV shows adaptability and stress balance, and Breath regulates the entire system. When these work in harmony, they create balance—stable, coherent, and calm. That's what {{APP_NAME}} measures in real time.
+
+Key Features
+
+Real-Time Biometric Tracking: Tracks Heart Rate (BPM), HRV (SDNN), Respiratory Rate, Body Temperature, and VO2 Max. All data collected in real time using Apple's HealthKit framework.
+
+Stress Zone Classification: Automatically classifies readings into color-coded zones: Calm (Blue), Optimal (Green), and Elevated Stress (Orange). Provides instant visual feedback.
+
+Comprehensive Dashboard: View progress with session statistics, trend analysis, frequency charts, duration trends, and HRV insights. Supports Day, Week, Month, and Year views.
+
+Interactive Data Visualization: Explore historical session data with interactive graphs, time-based views, sensor-specific charts, range indicators, and trend analysis.
+
+Apple Watch Integration: Start sessions directly from your Watch with independent operation. See real-time sensor readings, stress zone feedback, and easy controls with a 3-2-1 countdown.
+
+Session Management: Review session summaries, log your state of mind, and automatically save all sessions. Import existing HealthKit data.
+
+Readiness Score: Get a holistic view of recovery with a daily score (0-100) based on Resting Heart Rate, HRV Balance, Body Temperature, Recovery Index, and Sleep metrics. View breakdowns and compare to yesterday.
+
+Smart Insights: Analyzes data to provide weekly HRV trends, improvement tracking, and pattern recognition to discover optimal times and durations.
+
+Why {{APP_NAME}}?
+
+Move beyond subjective feelings and gain objective insights. {{APP_NAME}} combines mindfulness with biometric tracking to help you understand how mindfulness affects your body, track progress with real data, identify patterns, build consistent habits, and see the interconnected balance of mind, body, and breath.
+
+Privacy & Security
+
+Your health data is stored locally and never shared with third parties. Optional CloudKit sync keeps data synchronized between devices. {{APP_NAME}} uses Apple's secure HealthKit framework. You control all permissions.
+
+Requirements
+
+- iOS 17.0 or later
+- Apple Watch Series 4 or later (optional but recommended for full sensor support)
+- HealthKit permissions (required for tracking)
+- Physical device required (HealthKit doesn't work in simulators)
+
+Apple Watch Compatibility: Heart Rate (all models Series 1+), HRV/SDNN (Series 4+), Respiratory Rate (Series 6+), Temperature (Series 8/Ultra+), and VO2 Max (Series 3+, accuracy varies).
+
+What We're Testing
+
+During this beta, we're interested in feedback on sensor accuracy, stress zone classification, dashboard clarity, Apple Watch performance, session syncing, and overall user experience. Your feedback helps us refine {{APP_NAME}} before launch. Thank you!
+
+Important Medical Disclaimer
+
+{{APP_NAME}} is not a medical device and does not provide medical advice, diagnosis, or treatment. Information is for wellness and self-improvement purposes only. Do not use {{APP_NAME}} data to diagnose, treat, or prevent any disease. Consult healthcare professionals for medical advice. Sensor readings are estimates, not clinical measurements.

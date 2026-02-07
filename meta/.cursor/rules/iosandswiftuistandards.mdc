@@ -1,0 +1,22 @@
+---
+alwaysApply: true
+---
+
+This project uses Swift, SwiftUI, and modern Apple frameworks.
+
+Follow these conventions:
+
+- Use SwiftUI-first design with MVVM structure.
+- Networking must use async/await with proper error propagation.
+- All model structs must be Codable unless noted otherwise.
+- Use dependency injection for testable components.
+- All new ViewModels must include:
+  • init with dependencies
+  • @Published state
+  • async load() pattern when applicable
+- Avoid force unwraps and force tries.
+- Conform to Apple's Human Interface Guidelines.
+- Add unit tests for:
+  • Networking calls
+  • State transitions
+  • Validation logic
