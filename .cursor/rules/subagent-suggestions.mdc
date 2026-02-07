@@ -18,11 +18,9 @@ Subagent suggestion routing:
 - Suggest `verifier` when work is claimed complete and needs validation.
 - Suggest `security-auditor` when implementing auth, payments, or handling sensitive data.
 
-Project schemes:
-- Do NOT hardcode scheme names.
-- Discover the repo’s current schemes from Xcode before suggesting test commands.
-  - Prefer listing schemes via `xcodebuild -list` against the repo’s `.xcworkspace` (if present), otherwise the `.xcodeproj`.
-  - Then pick the relevant scheme(s) based on what changed.
+Project schemes (replace placeholders in your app repo):
+- "{{IOS_SCHEME}}"
+- "{{WATCH_SCHEME}}" (optional)
 
 When suggesting tests, prefer a copy/pasteable plan:
 - Run tests for the relevant scheme(s) based on what changed.
