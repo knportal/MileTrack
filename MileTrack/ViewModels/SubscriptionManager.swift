@@ -19,7 +19,7 @@ import StoreKit
 @MainActor
 final class SubscriptionManager: ObservableObject {
   /// Public API (kept stable): current tier + annual flag derived from active entitlement.
-  @Published var status: SubscriptionStatus
+  @Published private(set) var status: SubscriptionStatus
 
   /// Products loaded from the App Store (StoreKit 2).
   @Published private(set) var products: [Product] = []
@@ -206,18 +206,19 @@ final class SubscriptionManager: ObservableObject {
     }
   }
 
-  /// Kept for existing debug tooling; this does not revoke real App Store entitlements.
+  #if DEBUG
+  /// Debug-only: resets to free tier for testing. Does not revoke real App Store entitlements.
   func resetToFree() {
     status = SubscriptionStatus(tier: .free, isAnnual: false)
     lastErrorMessage = nil
     lastUpdated = Date()
   }
+  #endif
 }
 
 enum SubscriptionProductIDs {
-  // Product IDs — replace with your real App Store Connect product IDs.
-  static let proMonthly = "knportal.MileTrack.pro.monthly"
-  static let proAnnual = "knportal.MileTrack.pro.annual"
+  static let proMonthly = "ai.plenitudo.MileTrack.pro.monthly"
+  static let proAnnual = "ai.plenitudo.MileTrack.pro.annual"
 
   // Backwards-compatible aliases (if any UI code still uses these names).
   static let monthly = proMonthly

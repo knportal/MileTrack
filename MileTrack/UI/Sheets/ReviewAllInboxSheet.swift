@@ -4,7 +4,7 @@ struct ReviewAllInboxSheet: View {
   @Environment(\.dismiss) private var dismiss
   @EnvironmentObject private var tripStore: TripStore
   @EnvironmentObject private var categoriesStore: CategoriesStore
-  @EnvironmentObject private var clientStore: ClientStore
+  @EnvironmentObject private var clientStore: ClientsStore
 
   @State private var pageIndex: Int = 0
 
@@ -289,6 +289,6 @@ private struct ReviewPage: View {
   return ReviewAllInboxSheet()
     .environmentObject(store)
     .environmentObject(CategoriesStore())
-    .environmentObject(ClientStore())
+    .environmentObject(ClientsStore())
 }
 

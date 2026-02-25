@@ -2,7 +2,7 @@ import Combine
 import Foundation
 
 @MainActor
-final class ClientStore: ObservableObject {
+final class ClientsStore: ObservableObject {
   @Published var clients: [String]
 
   private let persistence: ClientsPersistenceStore

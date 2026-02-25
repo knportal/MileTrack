@@ -41,6 +41,7 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
+				UI/Sheets/QUICK_START.md,
 			);
 			target = B90C24C62F31052E008EA030 /* MileTrack */;
 		};
@@ -427,9 +428,12 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = MileTrack/Info.plist;
-				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "Auto Mode uses background location to detect drives and prevent missed mileage. Location is used to estimate distance and create trips for your Inbox.";
-				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "MileTrack uses your location while the app is open to detect drives and estimate mileage. For best Auto Mode results, you can allow Always access.";
-				INFOPLIST_KEY_NSMotionUsageDescription = "MileTrack uses motion activity to detect when you start and stop driving for Auto Mode.";
+				INFOPLIST_KEY_LSApplicationCategoryType = "";
+				INFOPLIST_KEY_NSFileProviderDomainUsageDescription = "MileTrack needs to access files to export trip reports and receipts.";
+				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "MileTrack needs background location access to automatically detect and track your trips even when the app is closed. This enables Auto Mode to work seamlessly without requiring the app to be open.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "MileTrack needs your location to track your trips and calculate mileage while you're using the app.";
+				INFOPLIST_KEY_NSMotionUsageDescription = "MileTrack uses motion sensors to improve trip detection accuracy and reduce battery usage by filtering GPS noise. Your motion data is processed on-device and never shared.";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "MileTrack uses your photos to attach receipt images to trips for expense tracking\n";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -440,7 +444,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = knportal.MileTrack;
+				PRODUCT_BUNDLE_IDENTIFIER = ai.plenitudo.MileTrack;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -463,9 +467,12 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = MileTrack/Info.plist;
-				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "Auto Mode uses background location to detect drives and prevent missed mileage. Location is used to estimate distance and create trips for your Inbox.";
-				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "MileTrack uses your location while the app is open to detect drives and estimate mileage. For best Auto Mode results, you can allow Always access.";
-				INFOPLIST_KEY_NSMotionUsageDescription = "MileTrack uses motion activity to detect when you start and stop driving for Auto Mode.";
+				INFOPLIST_KEY_LSApplicationCategoryType = "";
+				INFOPLIST_KEY_NSFileProviderDomainUsageDescription = "MileTrack needs to access files to export trip reports and receipts.";
+				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "MileTrack needs background location access to automatically detect and track your trips even when the app is closed. This enables Auto Mode to work seamlessly without requiring the app to be open.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "MileTrack needs your location to track your trips and calculate mileage while you're using the app.";
+				INFOPLIST_KEY_NSMotionUsageDescription = "MileTrack uses motion sensors to improve trip detection accuracy and reduce battery usage by filtering GPS noise. Your motion data is processed on-device and never shared.";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "MileTrack uses your photos to attach receipt images to trips for expense tracking\n";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -476,7 +483,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = knportal.MileTrack;
+				PRODUCT_BUNDLE_IDENTIFIER = ai.plenitudo.MileTrack;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -498,7 +505,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = knportal.MileTrackTests;
+				PRODUCT_BUNDLE_IDENTIFIER = ai.plenitudo.MileTrackTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = NO;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -520,7 +527,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = knportal.MileTrackTests;
+				PRODUCT_BUNDLE_IDENTIFIER = ai.plenitudo.MileTrackTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = NO;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -540,7 +547,7 @@
 				DEVELOPMENT_TEAM = C8SXTF2Y53;
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = knportal.MileTrackUITests;
+				PRODUCT_BUNDLE_IDENTIFIER = ai.plenitudo.MileTrackUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = NO;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -560,7 +567,7 @@
 				DEVELOPMENT_TEAM = C8SXTF2Y53;
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = knportal.MileTrackUITests;
+				PRODUCT_BUNDLE_IDENTIFIER = ai.plenitudo.MileTrackUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = NO;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;

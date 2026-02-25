@@ -10,6 +10,8 @@ struct TripInboxCard: View {
   let onIgnore: () -> Void
   let onEdit: () -> Void
 
+  @AppStorage("useMetricUnits") private var useMetricUnits = false
+
   @State private var isPresentingAddCategory: Bool = false
   @State private var newCategoryName: String = ""
   @State private var addCategoryError: String?
@@ -18,11 +20,14 @@ struct TripInboxCard: View {
     GlassCard {
       VStack(alignment: .leading, spacing: DesignConstants.Spacing.sm) {
         header
+        if let addressText = fullAddressText {
+          addressSection(addressText)
+        }
         categoryDropdown
         actions
       }
     }
-    .accessibilityElement(children: .ignore)
+    .accessibilityElement(children: .contain)
     .accessibilityLabel("Inbox trip, \(routeLabel), \(distanceLabel)")
     .accessibilityValue(selectedCategoryLabel)
     .alert("Add New Category", isPresented: $isPresentingAddCategory) {
@@ -30,7 +35,7 @@ struct TripInboxCard: View {
       Button("Add") { addCategory() }
       Button("Cancel", role: .cancel) {}
     } message: {
-      Text("Names can’t be empty or duplicates.")
+      Text("Names can't be empty or duplicates.")
     }
   }
 
@@ -84,6 +89,38 @@ struct TripInboxCard: View {
         .accessibilityHint("Opens categorize trip sheet.")
       }
     }
+  }
+  
+  private func addressSection(_ text: String) -> some View {
+    VStack(alignment: .leading, spacing: 4) {
+      Text("Addresses")
+        .font(.caption2.weight(.semibold))
+        .foregroundStyle(.secondary)
+        .textCase(.uppercase)
+      
+      Text(text)
+        .font(.footnote)
+        .foregroundStyle(.secondary)
+        .lineLimit(3)
+    }
+    .padding(.horizontal, 12)
+    .padding(.vertical, 8)
+    .frame(maxWidth: .infinity, alignment: .leading)
+    .background(.quaternary.opacity(0.3), in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+  }
+  
+  private var fullAddressText: String? {
+    var parts: [String] = []
+    
+    if let startAddr = trip.startAddress?.trimmingCharacters(in: .whitespacesAndNewlines), !startAddr.isEmpty {
+      parts.append("From: \(startAddr)")
+    }
+    
+    if let endAddr = trip.endAddress?.trimmingCharacters(in: .whitespacesAndNewlines), !endAddr.isEmpty {
+      parts.append("To: \(endAddr)")
+    }
+    
+    return parts.isEmpty ? nil : parts.joined(separator: "\n")
   }
 
   private var categoryDropdown: some View {
@@ -202,8 +239,7 @@ struct TripInboxCard: View {
   }
 
   private var distanceLabel: String {
-    let number = trip.distanceMiles.formatted(.number.precision(.fractionLength(0...1)))
-    return "\(number) mi"
+    DistanceFormatter.format(trip.distanceMiles)
   }
 
   private func durationLabel(_ seconds: Int) -> String {
@@ -260,6 +296,6 @@ struct TripInboxCard: View {
   .padding()
   .background(.ultraThinMaterial)
   .environmentObject(CategoriesStore())
-  .environmentObject(ClientStore())
+  .environmentObject(ClientsStore())
 }
 

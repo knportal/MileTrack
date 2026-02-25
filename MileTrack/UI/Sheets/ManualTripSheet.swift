@@ -1,10 +1,12 @@
 import SwiftUI
+import MapKit
 
 struct ManualTripSheet: View {
   @Environment(\.dismiss) private var dismiss
   @EnvironmentObject private var tripStore: TripStore
   @EnvironmentObject private var categoriesStore: CategoriesStore
-  @EnvironmentObject private var clientStore: ClientStore
+  @EnvironmentObject private var clientStore: ClientsStore
+  @EnvironmentObject private var vehiclesStore: VehiclesStore
 
   @State private var selectedCategory: String?
   @State private var distanceText: String = ""
@@ -13,9 +15,14 @@ struct ManualTripSheet: View {
   @State private var startLabel: String = ""
   @State private var endLabel: String = ""
   @State private var selectedClient: String?
+  @State private var selectedVehicleID: UUID?
+  @State private var purposeText: String = ""
   @State private var projectCodeText: String = ""
   @State private var notes: String = ""
+  @AppStorage("useMetricUnits") private var useMetricUnits = false
+
   @State private var showOptionalFields: Bool = false
+  @State private var isCalculatingDistance: Bool = false
 
   @FocusState private var focusedField: Field?
 
@@ -31,6 +38,7 @@ struct ManualTripSheet: View {
     case distance
     case start
     case end
+    case purpose
     case project
     case notes
   }
@@ -44,23 +52,60 @@ struct ManualTripSheet: View {
               Text("Category (required)")
                 .font(.headline)
 
-              Picker("Category", selection: $selectedCategory) {
-                Text("Select category").tag(String?.none)
-                ForEach(categoriesStore.categories, id: \.self) { category in
-                  Text(category).tag(String?.some(category))
-                }
-                Text("+ Add New Category…").tag(String?.some(Self.addNewSentinel))
-              }
-              .pickerStyle(.menu)
-              .accessibilityLabel("Category")
-              .onChange(of: selectedCategory) { _, newValue in
-                if newValue == Self.addNewSentinel {
+              Menu {
+                Button {
                   selectedCategory = nil
+                } label: {
+                  if selectedCategory == nil {
+                    Label("Select category", systemImage: "checkmark")
+                  } else {
+                    Text("Select category")
+                  }
+                }
+                
+                Divider()
+                
+                ForEach(categoriesStore.categories, id: \.self) { category in
+                  Button {
+                    selectedCategory = category
+                  } label: {
+                    if selectedCategory == category {
+                      Label(category, systemImage: "checkmark")
+                    } else {
+                      Text(category)
+                    }
+                  }
+                }
+                
+                Divider()
+                
+                Button {
                   newCategoryName = ""
                   addCategoryError = nil
                   isPresentingAddCategory = true
+                } label: {
+                  Label("Add New Category…", systemImage: "plus")
+                }
+              } label: {
+                HStack {
+                  Text(selectedCategory ?? "Select category")
+                    .foregroundStyle(selectedCategory != nil ? .primary : .secondary)
+                  Spacer()
+                  Image(systemName: "chevron.up.chevron.down")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                }
+                .padding(.horizontal, 14)
+                .padding(.vertical, 12)
+                .background(Color(.secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+                .overlay {
+                  RoundedRectangle(cornerRadius: 12, style: .continuous)
+                    .strokeBorder(Color.primary.opacity(0.08), lineWidth: 1)
                 }
               }
+              .buttonStyle(.plain)
+              .accessibilityLabel("Category")
+              .accessibilityValue(selectedCategory ?? "Not selected")
 
               if let addCategoryError {
                 Text(addCategoryError)
@@ -76,10 +121,36 @@ struct ManualTripSheet: View {
                 .font(.headline)
 
               VStack(alignment: .leading, spacing: 10) {
-                Text("Distance (miles, required)")
-                  .font(.subheadline.weight(.semibold))
-                  .foregroundStyle(.secondary)
-                  .accessibilityHidden(true)
+                AddressAutocompleteField(
+                  placeholder: "Start location",
+                  text: $startLabel,
+                  accessibilityLabel: "Start location"
+                )
+                .onChange(of: startLabel) { _, _ in
+                  calculateDistanceIfPossible()
+                }
+
+                AddressAutocompleteField(
+                  placeholder: "End location",
+                  text: $endLabel,
+                  accessibilityLabel: "End location"
+                )
+                .onChange(of: endLabel) { _, _ in
+                  calculateDistanceIfPossible()
+                }
+
+                HStack {
+                  Text("Distance (\(DistanceFormatter.unitLabel), required)")
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(.secondary)
+                    .accessibilityHidden(true)
+                  
+                  if isCalculatingDistance {
+                    Spacer()
+                    ProgressView()
+                      .controlSize(.small)
+                  }
+                }
 
                 TextField("0.0", text: $distanceText)
                   .keyboardType(.decimalPad)
@@ -91,32 +162,196 @@ struct ManualTripSheet: View {
                     RoundedRectangle(cornerRadius: 14, style: .continuous)
                       .strokeBorder(Color.primary.opacity(0.10), lineWidth: 1)
                   }
-                  .accessibilityLabel("Distance in miles")
+                  .accessibilityLabel("Distance in \(DistanceFormatter.unitName)")
 
                 DatePicker("Date & Time", selection: $date, displayedComponents: [.date, .hourAndMinute])
                   .datePickerStyle(.compact)
                   .accessibilityLabel("Date and time")
               }
 
-              DisclosureGroup(isExpanded: $showOptionalFields) {
+              // Optional details toggle button
+              Button {
+                withAnimation(.easeInOut(duration: 0.2)) {
+                  showOptionalFields.toggle()
+                }
+              } label: {
+                HStack {
+                  Text("Optional details")
+                    .font(.subheadline.weight(.medium))
+                  Spacer()
+                  Image(systemName: showOptionalFields ? "chevron.up" : "chevron.down")
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(.secondary)
+                }
+                .padding(.horizontal, 14)
+                .padding(.vertical, 12)
+                .background(Color(.secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+                .overlay {
+                  RoundedRectangle(cornerRadius: 12, style: .continuous)
+                    .strokeBorder(Color.primary.opacity(0.08), lineWidth: 1)
+                }
+              }
+              .buttonStyle(.plain)
+              .accessibilityLabel("Optional details")
+              .accessibilityHint(showOptionalFields ? "Tap to hide optional fields" : "Tap to show optional fields")
+              
+              if showOptionalFields {
                 VStack(alignment: .leading, spacing: 10) {
-                  Picker("Client / Organization (optional)", selection: $selectedClient) {
-                    Text("No client").tag(String?.none)
-                    ForEach(clientStore.clients, id: \.self) { client in
-                      Text(client).tag(String?.some(client))
+                  // Purpose field
+                  Text("Business Purpose")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+
+                  ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 8) {
+                      ForEach(["Client meeting", "Site visit", "Delivery", "Medical appt", "Property visit", "Training"], id: \.self) { suggestion in
+                        Button {
+                          purposeText = purposeText == suggestion ? "" : suggestion
+                        } label: {
+                          Text(suggestion)
+                            .font(.caption.weight(.semibold))
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 6)
+                            .background(purposeText == suggestion ? Color.accentColor.opacity(0.18) : Color(.secondarySystemGroupedBackground), in: Capsule())
+                            .overlay {
+                              Capsule()
+                                .strokeBorder(purposeText == suggestion ? Color.accentColor.opacity(0.5) : Color.primary.opacity(0.08), lineWidth: 1)
+                            }
+                            .foregroundStyle(purposeText == suggestion ? Color.accentColor : Color.primary)
+                        }
+                        .buttonStyle(.plain)
+                      }
                     }
-                    Text("+ Add New Client…").tag(String?.some(Self.addNewClientSentinel))
+                    .padding(.horizontal, 1)
                   }
-                  .pickerStyle(.menu)
-                  .accessibilityLabel("Client or organization")
-                  .onChange(of: selectedClient) { _, newValue in
-                    if newValue == Self.addNewClientSentinel {
+
+                  TextField("Describe the business purpose…", text: $purposeText.max(DesignConstants.TextLimits.notes))
+                    .textInputAutocapitalization(.sentences)
+                    .focused($focusedField, equals: .purpose)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 10)
+                    .background(Color(.secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+                    .overlay {
+                      RoundedRectangle(cornerRadius: 12, style: .continuous)
+                        .strokeBorder(Color.primary.opacity(0.08), lineWidth: 1)
+                    }
+                    .accessibilityLabel("Business purpose")
+
+                  // Vehicle picker
+                  Text("Vehicle")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+
+                  if vehiclesStore.vehicles.isEmpty {
+                    Text("No vehicles saved — add one in Settings → Vehicles.")
+                      .font(.footnote)
+                      .foregroundStyle(.secondary)
+                  } else {
+                    Menu {
+                      Button {
+                        selectedVehicleID = nil
+                      } label: {
+                        if selectedVehicleID == nil {
+                          Label("No vehicle", systemImage: "checkmark")
+                        } else {
+                          Text("No vehicle")
+                        }
+                      }
+
+                      Divider()
+
+                      ForEach(vehiclesStore.vehicles) { vehicle in
+                        Button {
+                          selectedVehicleID = vehicle.id
+                        } label: {
+                          if selectedVehicleID == vehicle.id {
+                            Label(vehicle.name, systemImage: "checkmark")
+                          } else {
+                            Text(vehicle.name)
+                          }
+                        }
+                      }
+                    } label: {
+                      HStack {
+                        Text(selectedVehicleName)
+                          .foregroundStyle(selectedVehicleID != nil ? .primary : .secondary)
+                        Spacer()
+                        Image(systemName: "chevron.up.chevron.down")
+                          .font(.caption)
+                          .foregroundStyle(.secondary)
+                      }
+                      .padding(.horizontal, 14)
+                      .padding(.vertical, 12)
+                      .background(Color(.secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+                      .overlay {
+                        RoundedRectangle(cornerRadius: 12, style: .continuous)
+                          .strokeBorder(Color.primary.opacity(0.08), lineWidth: 1)
+                      }
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel("Vehicle")
+                    .accessibilityValue(selectedVehicleName)
+                  }
+
+                  // Client picker with filled button style
+                  Text("Client / Organization")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                  
+                  Menu {
+                    Button {
                       selectedClient = nil
+                    } label: {
+                      if selectedClient == nil {
+                        Label("No client", systemImage: "checkmark")
+                      } else {
+                        Text("No client")
+                      }
+                    }
+                    
+                    Divider()
+                    
+                    ForEach(clientStore.clients, id: \.self) { client in
+                      Button {
+                        selectedClient = client
+                      } label: {
+                        if selectedClient == client {
+                          Label(client, systemImage: "checkmark")
+                        } else {
+                          Text(client)
+                        }
+                      }
+                    }
+                    
+                    Divider()
+                    
+                    Button {
                       newClientName = ""
                       addClientError = nil
                       isPresentingAddClient = true
+                    } label: {
+                      Label("Add New Client…", systemImage: "plus")
+                    }
+                  } label: {
+                    HStack {
+                      Text(selectedClient ?? "No client")
+                        .foregroundStyle(selectedClient != nil ? .primary : .secondary)
+                      Spacer()
+                      Image(systemName: "chevron.up.chevron.down")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    }
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 12)
+                    .background(Color(.secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+                    .overlay {
+                      RoundedRectangle(cornerRadius: 12, style: .continuous)
+                        .strokeBorder(Color.primary.opacity(0.08), lineWidth: 1)
                     }
                   }
+                  .buttonStyle(.plain)
+                  .accessibilityLabel("Client or organization")
+                  .accessibilityValue(selectedClient ?? "No client")
 
                   if let addClientError {
                     Text(addClientError)
@@ -124,59 +359,31 @@ struct ManualTripSheet: View {
                       .foregroundStyle(.red)
                   }
 
-                  TextField("Start (optional)", text: $startLabel)
-                    .textInputAutocapitalization(.words)
-                    .focused($focusedField, equals: .start)
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 10)
-                    .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
-                    .overlay {
-                      RoundedRectangle(cornerRadius: 14, style: .continuous)
-                        .strokeBorder(Color.primary.opacity(0.10), lineWidth: 1)
-                    }
-                    .accessibilityLabel("Start location")
-
-                  TextField("End (optional)", text: $endLabel)
-                    .textInputAutocapitalization(.words)
-                    .focused($focusedField, equals: .end)
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 10)
-                    .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
-                    .overlay {
-                      RoundedRectangle(cornerRadius: 14, style: .continuous)
-                        .strokeBorder(Color.primary.opacity(0.10), lineWidth: 1)
-                    }
-                    .accessibilityLabel("End location")
-
-                  TextField("Project / Job code (optional)", text: $projectCodeText)
+                  TextField("Project / Job code", text: $projectCodeText.max(DesignConstants.TextLimits.shortName))
                     .textInputAutocapitalization(.characters)
                     .focused($focusedField, equals: .project)
                     .padding(.horizontal, 12)
                     .padding(.vertical, 10)
-                    .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+                    .background(Color(.secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
                     .overlay {
-                      RoundedRectangle(cornerRadius: 14, style: .continuous)
-                        .strokeBorder(Color.primary.opacity(0.10), lineWidth: 1)
+                      RoundedRectangle(cornerRadius: 12, style: .continuous)
+                        .strokeBorder(Color.primary.opacity(0.08), lineWidth: 1)
                     }
                     .accessibilityLabel("Project code")
 
-                  TextField("Notes (optional)", text: $notes, axis: .vertical)
+                  TextField("Notes", text: $notes.max(DesignConstants.TextLimits.notes), axis: .vertical)
                     .lineLimit(2...5)
                     .focused($focusedField, equals: .notes)
                     .padding(.horizontal, 12)
                     .padding(.vertical, 10)
-                    .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+                    .background(Color(.secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
                     .overlay {
-                      RoundedRectangle(cornerRadius: 14, style: .continuous)
-                        .strokeBorder(Color.primary.opacity(0.10), lineWidth: 1)
+                      RoundedRectangle(cornerRadius: 12, style: .continuous)
+                        .strokeBorder(Color.primary.opacity(0.08), lineWidth: 1)
                     }
                     .accessibilityLabel("Notes")
                 }
-                .padding(.top, 10)
-              } label: {
-                Text("Optional details")
-                  .font(.subheadline.weight(.semibold))
-                  .foregroundStyle(.secondary)
+                .transition(.opacity.combined(with: .move(edge: .top)))
               }
             }
           }
@@ -206,20 +413,20 @@ struct ManualTripSheet: View {
     }
     .presentationBackground(.ultraThinMaterial)
     .alert("Add New Category", isPresented: $isPresentingAddCategory) {
-      TextField("Category name", text: $newCategoryName)
+      TextField("Category name", text: $newCategoryName.max(DesignConstants.TextLimits.shortName))
       Button("Add") {
         addCategory()
       }
       Button("Cancel", role: .cancel) {}
     } message: {
-      Text("Names can’t be empty or duplicates.")
+      Text("Names can't be empty or duplicates.")
     }
     .alert("Add New Client", isPresented: $isPresentingAddClient) {
-      TextField("Client name", text: $newClientName)
+      TextField("Client name", text: $newClientName.max(DesignConstants.TextLimits.shortName))
       Button("Add") { addClient() }
       Button("Cancel", role: .cancel) {}
     } message: {
-      Text("Names can’t be empty or duplicates.")
+      Text("Names can't be empty or duplicates.")
     }
   }
 
@@ -236,11 +443,17 @@ struct ManualTripSheet: View {
     return base
   }
 
+  private var selectedVehicleName: String {
+    guard let id = selectedVehicleID else { return "No vehicle" }
+    return vehiclesStore.vehicles.first(where: { $0.id == id })?.name ?? "Unknown vehicle"
+  }
+
   private var parsedDistanceMiles: Double? {
     let trimmed = distanceText.trimmingCharacters(in: .whitespacesAndNewlines)
       .replacingOccurrences(of: ",", with: ".")
-    guard let miles = Double(trimmed), miles > 0 else { return nil }
-    return miles
+    guard let value = Double(trimmed), value > 0 else { return nil }
+    // Convert from display units (mi or km) to miles for storage
+    return DistanceFormatter.toMiles(value)
   }
 
   private var normalizedSelectedCategory: String? {
@@ -253,6 +466,7 @@ struct ManualTripSheet: View {
 
     let trimmedStart = startLabel.trimmingCharacters(in: .whitespacesAndNewlines)
     let trimmedEnd = endLabel.trimmingCharacters(in: .whitespacesAndNewlines)
+    let trimmedPurpose = purposeText.trimmingCharacters(in: .whitespacesAndNewlines)
     let trimmedProject = projectCodeText.trimmingCharacters(in: .whitespacesAndNewlines)
     let trimmedNotes = notes.trimmingCharacters(in: .whitespacesAndNewlines)
 
@@ -267,7 +481,9 @@ struct ManualTripSheet: View {
       category: category,
       clientOrOrg: selectedClient,
       projectCode: trimmedProject.isEmpty ? nil : trimmedProject,
-      notes: trimmedNotes.isEmpty ? nil : trimmedNotes
+      notes: trimmedNotes.isEmpty ? nil : trimmedNotes,
+      purpose: trimmedPurpose.isEmpty ? nil : trimmedPurpose,
+      vehicleID: selectedVehicleID
     )
 
     tripStore.trips.insert(trip, at: 0)
@@ -303,11 +519,72 @@ struct ManualTripSheet: View {
       addClientError = "That client already exists."
     }
   }
+
+  private func calculateDistanceIfPossible() {
+    let trimmedStart = startLabel.trimmingCharacters(in: .whitespacesAndNewlines)
+    let trimmedEnd = endLabel.trimmingCharacters(in: .whitespacesAndNewlines)
+
+    // Only calculate if both addresses are filled
+    guard !trimmedStart.isEmpty && !trimmedEnd.isEmpty else {
+      return
+    }
+
+    // Cancel any existing calculation
+    isCalculatingDistance = true
+
+    Task {
+      do {
+        // Geocode start address
+        let startRequest = MKLocalSearch.Request()
+        startRequest.naturalLanguageQuery = trimmedStart
+        let startSearch = MKLocalSearch(request: startRequest)
+        let startResponse = try await startSearch.start()
+
+        guard let startItem = startResponse.mapItems.first else {
+          isCalculatingDistance = false
+          return
+        }
+
+        // Geocode end address
+        let endRequest = MKLocalSearch.Request()
+        endRequest.naturalLanguageQuery = trimmedEnd
+        let endSearch = MKLocalSearch(request: endRequest)
+        let endResponse = try await endSearch.start()
+
+        guard let endItem = endResponse.mapItems.first else {
+          isCalculatingDistance = false
+          return
+        }
+
+        // Calculate driving distance using MKDirections
+        let directionsRequest = MKDirections.Request()
+        directionsRequest.source = startItem
+        directionsRequest.destination = endItem
+        directionsRequest.transportType = .automobile
+
+        let directions = MKDirections(request: directionsRequest)
+        let directionsResponse = try await directions.calculate()
+
+        if let route = directionsResponse.routes.first {
+          // Convert meters to miles, then to display units
+          let miles = route.distance / 1609.34
+          let displayValue = DistanceFormatter.toDisplayUnits(miles)
+          distanceText = String(format: "%.1f", displayValue)
+        }
+
+        isCalculatingDistance = false
+      } catch {
+        // Silently fail - user can enter distance manually
+        isCalculatingDistance = false
+      }
+    }
+  }
 }
 
 #Preview {
   ManualTripSheet()
     .environmentObject(TripStore())
     .environmentObject(CategoriesStore())
-    .environmentObject(ClientStore())
+    .environmentObject(ClientsStore())
+    .environmentObject(VehiclesStore())
 }

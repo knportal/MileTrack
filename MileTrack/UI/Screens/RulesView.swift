@@ -4,7 +4,7 @@ struct RulesView: View {
   @EnvironmentObject private var subscriptionManager: SubscriptionManager
   @EnvironmentObject private var rulesStore: RulesStore
   @EnvironmentObject private var categoriesStore: CategoriesStore
-  @EnvironmentObject private var clientStore: ClientStore
+  @EnvironmentObject private var clientStore: ClientsStore
 
   @State private var isPresentingCreate: Bool = false
 
@@ -185,6 +185,6 @@ struct RulesView: View {
     )
   ]))
   .environmentObject(CategoriesStore())
-  .environmentObject(ClientStore())
+  .environmentObject(ClientsStore())
 }
 

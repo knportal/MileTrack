@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct ManageClientsView: View {
-  @EnvironmentObject private var clientStore: ClientStore
+  @EnvironmentObject private var clientStore: ClientsStore
   @EnvironmentObject private var tripStore: TripStore
 
   @State private var isPresentingAdd: Bool = false
@@ -43,17 +43,17 @@ struct ManageClientsView: View {
       }
     }
     .alert("Add Client", isPresented: $isPresentingAdd) {
-      TextField("Client name", text: $addName)
+      TextField("Client name", text: $addName.max(DesignConstants.TextLimits.shortName))
       Button("Add") { addClient() }
       Button("Cancel", role: .cancel) {}
     } message: {
-      Text("Names can’t be empty or duplicates.")
+      Text("Names can't be empty or duplicates.")
     }
     .alert("Rename Client", isPresented: Binding(
       get: { renamingClient != nil },
       set: { if !$0 { renamingClient = nil } }
     )) {
-      TextField("New name", text: $renameName)
+      TextField("New name", text: $renameName.max(DesignConstants.TextLimits.shortName))
       Button("Save") { renameClient() }
       Button("Cancel", role: .cancel) { renamingClient = nil }
     } message: {
@@ -234,7 +234,7 @@ struct ManageClientsView: View {
   NavigationStack {
     ManageClientsView()
   }
-  .environmentObject(ClientStore())
+  .environmentObject(ClientsStore())
   .environmentObject(TripStore())
 }
 

@@ -5,7 +5,7 @@ struct PrivacyView: View {
 
   @EnvironmentObject private var tripStore: TripStore
   @EnvironmentObject private var categoriesStore: CategoriesStore
-  @EnvironmentObject private var clientStore: ClientStore
+  @EnvironmentObject private var clientStore: ClientsStore
   @EnvironmentObject private var rulesStore: RulesStore
 
   @State private var isPresentingDeleteConfirm: Bool = false
@@ -90,15 +90,18 @@ struct PrivacyView: View {
         Text("Export")
           .font(.headline)
 
-        Text("You can export confirmed trips as a CSV file from the Reports tab.")
+        Text("You can export confirmed trips from the Reports tab:")
           .font(.footnote)
           .foregroundStyle(.secondary)
 
-        Text("Reports → Export → Export CSV")
-          .font(.footnote.monospaced())
+        VStack(alignment: .leading, spacing: 6) {
+          bullet("CSV exports available on free tier")
+          bullet("PDF summary exports available with Pro subscription")
+        }
+
+        Text("Exported files are temporarily saved to your device and can be shared via the standard iOS share sheet. No data is uploaded to external servers during export.")
+          .font(.footnote)
           .foregroundStyle(.secondary)
-          .accessibilityLabel("Export path")
-          .accessibilityValue("Reports, Export, Export CSV")
       }
     }
   }
@@ -144,8 +147,8 @@ struct PrivacyView: View {
           .font(.headline)
 
         VStack(spacing: 10) {
-          legalLinkRow(title: "Privacy Policy", urlString: "https://yourcompany.example/privacy")
-          legalLinkRow(title: "Terms of Use", urlString: "https://yourcompany.example/terms")
+          legalLinkRow(title: "Privacy Policy", urlString: "https://www.plenitudo.ai/app/miletrack/privacy-policy")
+          legalLinkRow(title: "Terms of Service", urlString: "https://www.plenitudo.ai/app/miletrack/terms")
         }
       }
     }
@@ -190,7 +193,7 @@ struct PrivacyView: View {
 
   private func deleteAllData() {
     tripStore.trips = []
-    tripStore.save()
+    tripStore.saveNow()
 
     // Restore defaults for required pickers.
     categoriesStore.resetToDefaults()
@@ -210,7 +213,7 @@ struct PrivacyView: View {
   }
   .environmentObject(TripStore())
   .environmentObject(CategoriesStore())
-  .environmentObject(ClientStore())
+  .environmentObject(ClientsStore())
   .environmentObject(RulesStore())
   .environmentObject(SubscriptionManager())
   .environmentObject(AutoModeManager(tripStore: TripStore()))

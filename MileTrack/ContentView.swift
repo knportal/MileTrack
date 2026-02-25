@@ -1,25 +1,38 @@
 import SwiftUI
 
 struct ContentView: View {
-  @ObservedObject var store: MileStore
+  @Environment(\.scenePhase) private var scenePhase
 
   @StateObject private var tripStore: TripStore
   @StateObject private var subscriptionManager: SubscriptionManager
   @StateObject private var categoriesStore: CategoriesStore
-  @StateObject private var clientStore: ClientStore
+  @StateObject private var clientStore: ClientsStore
+  @StateObject private var locationsStore: LocationsStore
+  @StateObject private var vehiclesStore: VehiclesStore
   @StateObject private var rulesStore: RulesStore
   @StateObject private var autoModeManager: AutoModeManager
+  
+  // Expense tracking stores
+  @StateObject private var mileageRatesStore: MileageRatesStore
+  @StateObject private var receiptsStore: ReceiptsStore
+  
+  @State private var hasRetriedGeocoding = false
 
-  init(store: MileStore) {
-    self.store = store
+  init() {
     let tripStore = TripStore()
     _tripStore = StateObject(wrappedValue: tripStore)
     _subscriptionManager = StateObject(wrappedValue: SubscriptionManager())
     _categoriesStore = StateObject(wrappedValue: CategoriesStore())
-    _clientStore = StateObject(wrappedValue: ClientStore())
+    _clientStore = StateObject(wrappedValue: ClientsStore())
+    _locationsStore = StateObject(wrappedValue: LocationsStore())
+    _vehiclesStore = StateObject(wrappedValue: VehiclesStore())
     let rulesStore = RulesStore()
     _rulesStore = StateObject(wrappedValue: rulesStore)
     _autoModeManager = StateObject(wrappedValue: AutoModeManager(tripStore: tripStore, rulesStore: rulesStore))
+    
+    // Initialize expense stores
+    _mileageRatesStore = StateObject(wrappedValue: MileageRatesStore())
+    _receiptsStore = StateObject(wrappedValue: ReceiptsStore())
   }
 
   var body: some View {
@@ -36,12 +49,39 @@ struct ContentView: View {
       .environmentObject(subscriptionManager)
       .environmentObject(categoriesStore)
       .environmentObject(clientStore)
+      .environmentObject(locationsStore)
+      .environmentObject(vehiclesStore)
       .environmentObject(rulesStore)
       .environmentObject(autoModeManager)
+      .environmentObject(mileageRatesStore)
+      .environmentObject(receiptsStore)
+      .onChange(of: scenePhase) { _, newPhase in
+        if newPhase == .background {
+          // Flush all pending saves immediately before app suspends
+          flushAllStores()
+        } else if newPhase == .active && !hasRetriedGeocoding {
+          // Retry failed geocoding on first activation (e.g., came back online)
+          hasRetriedGeocoding = true
+          tripStore.retryFailedGeocoding()
+        }
+      }
+  }
+  
+  /// Force immediate save on all stores to prevent data loss on app termination.
+  private func flushAllStores() {
+    tripStore.saveNow()
+    categoriesStore.saveNow()
+    clientStore.saveNow()
+    locationsStore.saveNow()
+    vehiclesStore.saveNow()
+    rulesStore.saveNow()
+    // Save expense stores
+    mileageRatesStore.saveNow()
+    receiptsStore.saveNow()
   }
 }
 
 #Preview {
-  ContentView(store: MileStore())
+  ContentView()
 }
 

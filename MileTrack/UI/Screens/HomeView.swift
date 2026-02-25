@@ -3,20 +3,25 @@ import SwiftUI
 struct HomeView: View {
   @EnvironmentObject private var tripStore: TripStore
   @EnvironmentObject private var subscriptionManager: SubscriptionManager
+  @EnvironmentObject private var autoModeManager: AutoModeManager
+  @EnvironmentObject private var mileageRatesStore: MileageRatesStore
 
   /// Hook for switching tabs (Inbox). MainTabView can wire this later.
   var onOpenInbox: (() -> Void)?
+  /// Hook for switching to Settings tab.
+  var onOpenSettings: (() -> Void)?
+
+  @AppStorage("useMetricUnits") private var useMetricUnits = false
 
   @State private var isPresentingManualTrip = false
-  @State private var selectedTrip: Trip?
 
   var body: some View {
     ScrollView {
       VStack(spacing: DesignConstants.Spacing.sm) {
         statusCard
+        deductionHeroCard
         kpiRow
         actionsCard
-        recentTripsCard
       }
       .padding(.horizontal, DesignConstants.Spacing.md)
       .padding(.vertical, DesignConstants.Spacing.sm)
@@ -26,33 +31,24 @@ struct HomeView: View {
     .sheet(isPresented: $isPresentingManualTrip) {
       ManualTripSheet()
     }
-    .sheet(item: $selectedTrip) { trip in
-      TripDetailView(trip: trip)
-    }
   }
 
   private var statusCard: some View {
     GlassCard {
       VStack(alignment: .leading, spacing: DesignConstants.Spacing.sm) {
-        HStack(alignment: .center, spacing: 10) {
-          VStack(alignment: .leading, spacing: 6) {
-            Text("Status")
-              .font(.headline)
+        Text("Status")
+          .font(.headline)
+        
+        HStack(alignment: .center, spacing: 8) {
+          StatusChip(
+            title: subscriptionManager.status.tier == .pro ? "Pro" : "Free",
+            systemImage: subscriptionManager.status.tier == .pro ? "sparkles" : "leaf"
+          )
 
-            HStack(spacing: 8) {
-              StatusChip(
-                title: subscriptionManager.status.tier == .pro ? "Pro" : "Free",
-                systemImage: subscriptionManager.status.tier == .pro ? "sparkles" : "leaf"
-              )
-
-              StatusChip(
-                title: autoModeChipTitle,
-                systemImage: "bolt.badge.a"
-              )
-              .accessibilityLabel("Auto Mode")
-              .accessibilityValue(autoModeChipTitle)
-            }
-          }
+          TrackingHealthChip(
+            health: autoModeManager.trackingHealth,
+            onTap: onOpenSettings
+          )
 
           Spacer(minLength: 0)
 
@@ -69,7 +65,7 @@ struct HomeView: View {
           .accessibilityHint("Opens Inbox to categorize pending trips.")
         }
 
-        Text("Auto-detected trips are not counted until you categorize and confirm them in Inbox.")
+        Text(autoModeManager.trackingHealth.description)
           .font(.footnote)
           .foregroundStyle(.secondary)
       }
@@ -129,83 +125,97 @@ struct HomeView: View {
     }
   }
 
-  private var recentTripsCard: some View {
-    VStack(alignment: .leading, spacing: 10) {
-      HStack {
-        Text("Recent Confirmed")
-          .font(.headline)
-        Spacer(minLength: 0)
-        Text("\(recentConfirmedTrips.count)")
+
+
+
+
+  // MARK: - Deduction Hero Card
+
+  private var deductionHeroCard: some View {
+    GlassCard {
+      VStack(alignment: .leading, spacing: 6) {
+        HStack(alignment: .firstTextBaseline, spacing: 0) {
+          Text(yearDeductionFormatted)
+            .font(.system(size: 40, weight: .bold, design: .rounded))
+            .foregroundStyle(yearDeductionAmount > 0 ? .primary : .secondary)
+            .contentTransition(.numericText())
+            .animation(.spring(response: 0.5, dampingFraction: 0.8), value: yearDeductionFormatted)
+
+          Spacer(minLength: 0)
+
+          Image(systemName: "dollarsign.arrow.circlepath")
+            .font(.title2)
+            .foregroundStyle(.green.opacity(0.8))
+            .accessibilityHidden(true)
+        }
+
+        Text("estimated \(String(Calendar.current.component(.year, from: Date()))) deduction")
+          .font(.footnote.weight(.medium))
           .foregroundStyle(.secondary)
-          .font(.subheadline)
-          .accessibilityHidden(true)
-      }
+          .textCase(.lowercase)
 
-      if recentConfirmedTrips.isEmpty {
-        EmptyStateView(
-          systemImage: "car",
-          title: "No confirmed trips yet",
-          subtitle: "Confirmed trips appear here and in Reports.",
-          actionTitle: "Add Trip",
-          action: { isPresentingManualTrip = true }
-        )
-      } else {
-        VStack(spacing: 10) {
-          ForEach(recentConfirmedTrips, id: \.id) { trip in
-            Button {
-              selectedTrip = trip
-            } label: {
-              GlassCard {
-                HStack(alignment: .top, spacing: 12) {
-                  VStack(alignment: .leading, spacing: 6) {
-                    Text(routeLabel(trip))
-                      .font(.subheadline.weight(.semibold))
-                      .foregroundStyle(.primary)
-                      .lineLimit(2)
-                      .minimumScaleFactor(0.85)
+        if yearConfirmedMiles > 0 {
+          HStack(spacing: 16) {
+            Label(DistanceFormatter.format(yearConfirmedMiles), systemImage: "road.lanes")
+              .font(.caption.weight(.semibold))
+              .foregroundStyle(.secondary)
 
-                    HStack(spacing: 10) {
-                      Text(trip.date, format: .dateTime.month().day())
-                        .foregroundStyle(.secondary)
-                      if let category = trip.category, !category.isEmpty {
-                        Text(category)
-                          .foregroundStyle(.secondary)
-                      }
-                    }
-                    .font(.footnote)
-                  }
-
-                  Spacer(minLength: 0)
-
-                  VStack(alignment: .trailing, spacing: 6) {
-                    Text(trip.distanceMiles.formatted(.number.precision(.fractionLength(0...1))) + " mi")
-                      .font(.subheadline.weight(.semibold))
-                    if let seconds = trip.durationSeconds, seconds > 0 {
-                      Text(durationFormatted(seconds))
-                        .font(.footnote)
-                        .foregroundStyle(.secondary)
-                    }
-                  }
-                }
-              }
+            if let topCategory = yearTopCategory {
+              Label(topCategory, systemImage: "tag")
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(.secondary)
+                .lineLimit(1)
             }
-            .buttonStyle(.plain)
-            .accessibilityElement(children: .ignore)
-            .accessibilityLabel("Trip, \(routeLabel(trip)), \(trip.distanceMiles.formatted(.number.precision(.fractionLength(0...1)))) miles")
-            .accessibilityHint("Opens trip details.")
           }
+          .padding(.top, 2)
+        } else {
+          Text("Confirm trips to start tracking your deduction.")
+            .font(.caption)
+            .foregroundStyle(.tertiary)
+            .padding(.top, 2)
         }
       }
     }
+    .accessibilityElement(children: .ignore)
+    .accessibilityLabel("Year-to-date estimated deduction")
+    .accessibilityValue(yearDeductionFormatted)
   }
 
-  private var recentConfirmedTrips: [Trip] {
-    Array(tripStore.confirmedTrips.prefix(3))
+  // MARK: - Year Calculations
+
+  private var yearConfirmedTrips: [Trip] {
+    let calendar = Calendar.current
+    let year = calendar.component(.year, from: Date())
+    return tripStore.confirmedTrips.filter {
+      calendar.component(.year, from: $0.date) == year
+    }
   }
 
-  private var autoModeChipTitle: String {
-    // Uses subscription tier (Auto Mode itself is configured in Settings).
-    subscriptionManager.canUseUnlimitedAutoMode ? "Auto: Unlimited" : "Auto: Limited"
+  private var yearConfirmedMiles: Double {
+    yearConfirmedTrips.reduce(0) { $0 + $1.distanceMiles }
+  }
+
+  private var yearDeductionAmount: Decimal {
+    yearConfirmedTrips.reduce(Decimal(0)) { acc, trip in
+      let rate = mileageRatesStore.rate(for: trip)?.ratePerMile ?? Decimal(string: "0.70")!
+      return acc + Decimal(trip.distanceMiles) * rate
+    }
+  }
+
+  private var yearDeductionFormatted: String {
+    let formatter = NumberFormatter()
+    formatter.numberStyle = .currency
+    formatter.currencyCode = "USD"
+    formatter.maximumFractionDigits = 0
+    return formatter.string(from: yearDeductionAmount as NSNumber) ?? "$0"
+  }
+
+  private var yearTopCategory: String? {
+    let counts = yearConfirmedTrips.reduce(into: [String: Double]()) { dict, trip in
+      guard let cat = trip.category, !cat.isEmpty else { return }
+      dict[cat, default: 0] += trip.distanceMiles
+    }
+    return counts.max(by: { $0.value < $1.value })?.key
   }
 
   private var todayConfirmedMiles: Double {
@@ -226,25 +236,7 @@ struct HomeView: View {
   }
 
   private func milesFormatted(_ miles: Double) -> String {
-    let number = miles.formatted(.number.precision(.fractionLength(0...1)))
-    return "\(number) mi"
-  }
-
-  private func routeLabel(_ trip: Trip) -> String {
-    let start = trip.startLabel?.trimmingCharacters(in: .whitespacesAndNewlines)
-    let end = trip.endLabel?.trimmingCharacters(in: .whitespacesAndNewlines)
-    if let start, !start.isEmpty, let end, !end.isEmpty { return "\(start) → \(end)" }
-    if let start, !start.isEmpty { return start }
-    if let end, !end.isEmpty { return end }
-    return "Trip"
-  }
-
-  private func durationFormatted(_ seconds: Int) -> String {
-    let minutes = max(0, seconds / 60)
-    if minutes < 60 { return "\(minutes)m" }
-    let hours = minutes / 60
-    let rem = minutes % 60
-    return rem == 0 ? "\(hours)h" : "\(hours)h \(rem)m"
+    DistanceFormatter.format(miles)
   }
 }
 
@@ -299,65 +291,62 @@ private struct InboxPill: View {
   }
 }
 
-private struct TripDetailView: View {
-  @Environment(\.dismiss) private var dismiss
-  let trip: Trip
+private struct TrackingHealthChip: View {
+  let health: AutoModeManager.TrackingHealth
+  var onTap: (() -> Void)?
 
-  var body: some View {
-    NavigationStack {
-      VStack(alignment: .leading, spacing: 12) {
-        Text(routeLabel(trip))
-          .font(.title3.weight(.bold))
-        Text("Trip details")
-          .foregroundStyle(.secondary)
-
-        GlassCard {
-          VStack(alignment: .leading, spacing: 8) {
-            LabeledContent("Date") { Text(trip.date.formatted(date: .abbreviated, time: .omitted)) }
-            LabeledContent("Distance") { Text(milesFormatted(trip.distanceMiles)) }
-            if let category = trip.category, !category.isEmpty {
-              LabeledContent("Category") { Text(category) }
-            }
-          }
-        }
-
-        Spacer()
-      }
-      .padding(16)
-      .navigationTitle("Trip")
-      .navigationBarTitleDisplayMode(.inline)
-      .toolbar {
-        ToolbarItem(placement: .cancellationAction) {
-          Button("Close") { dismiss() }
-        }
-      }
-      .accessibilityElement(children: .contain)
+  private var indicatorColor: Color {
+    switch health {
+    case .green: return .green
+    case .orange: return .orange
+    case .red: return .red
     }
   }
 
-  private func milesFormatted(_ miles: Double) -> String {
-    let number = miles.formatted(.number.precision(.fractionLength(0...1)))
-    return "\(number) mi"
-  }
-
-  private func routeLabel(_ trip: Trip) -> String {
-    let start = trip.startLabel?.trimmingCharacters(in: .whitespacesAndNewlines)
-    let end = trip.endLabel?.trimmingCharacters(in: .whitespacesAndNewlines)
-    if let start, !start.isEmpty, let end, !end.isEmpty { return "\(start) → \(end)" }
-    if let start, !start.isEmpty { return start }
-    if let end, !end.isEmpty { return end }
-    return "Trip"
+  var body: some View {
+    Button {
+      onTap?()
+    } label: {
+      HStack(spacing: 6) {
+        Circle()
+          .fill(indicatorColor)
+          .frame(width: 8, height: 8)
+          .accessibilityHidden(true)
+        Text(health.title)
+          .font(.caption.weight(.semibold))
+        if health != .green {
+          Image(systemName: "chevron.right")
+            .imageScale(.small)
+            .foregroundStyle(.secondary)
+            .accessibilityHidden(true)
+        }
+      }
+      .padding(.horizontal, 10)
+      .padding(.vertical, 6)
+      .background(indicatorColor.opacity(0.15), in: Capsule())
+      .overlay {
+        Capsule()
+          .strokeBorder(indicatorColor.opacity(0.3), lineWidth: 1)
+      }
+    }
+    .buttonStyle(.plain)
+    .accessibilityElement(children: .ignore)
+    .accessibilityLabel("Tracking Status")
+    .accessibilityValue(health.title)
+    .accessibilityHint(health != .green ? "Opens Settings to fix tracking issues." : "")
   }
 }
 
 #Preview {
   NavigationStack {
-    HomeView(onOpenInbox: {})
+    HomeView(onOpenInbox: {}, onOpenSettings: {})
   }
   .environmentObject(TripStore())
   .environmentObject(SubscriptionManager())
   .environmentObject(CategoriesStore())
-  .environmentObject(ClientStore())
+  .environmentObject(ClientsStore())
   .environmentObject(RulesStore())
+  .environmentObject(AutoModeManager(tripStore: TripStore()))
+  .environmentObject(MileageRatesStore())
 }
 

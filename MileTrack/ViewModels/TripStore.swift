@@ -1,11 +1,13 @@
 import Foundation
 import Combine
+import CoreLocation
 
 /// In-memory trip store used for SwiftUI previews and UI state only.
 @MainActor
 final class TripStore: ObservableObject {
   @Published var trips: [Trip]
   private let persistence: TripPersistenceStore
+  private let geocoder = ReverseGeocodeService()
   private var cancellables: Set<AnyCancellable> = []
 
   init(
@@ -18,10 +20,17 @@ final class TripStore: ObservableObject {
 
     if let trips {
       self.trips = trips
-    } else if let loaded = try? persistenceStore.loadTrips(), !loaded.isEmpty {
-      self.trips = loaded
     } else {
-      self.trips = Self.makeMockTrips()
+      let result = persistenceStore.loadTripsWithFallback()
+      self.trips = result.trips
+      #if DEBUG
+      if result.restoredFromBackup {
+        print("[TripStore] restored \(result.trips.count) trips from backup")
+      }
+      if persistenceStore.lastLoadSkippedCount > 0 {
+        print("[TripStore] skipped \(persistenceStore.lastLoadSkippedCount) corrupted trips")
+      }
+      #endif
     }
 
     $trips
@@ -45,8 +54,10 @@ final class TripStore: ObservableObject {
       .sorted { $0.date > $1.date }
   }
 
-  /// Mock trips for previews and local UI state.
-  /// Kept `@MainActor` because it’s used by `TripStore` initialization/SwiftUI previews.
+  // MARK: - Debug / Preview helpers
+
+  #if DEBUG
+  /// Mock trips for SwiftUI previews only. Never loaded for real users.
   static func makeMockTrips(now: Date = Date()) -> [Trip] {
     [
       // Inbox (pending_category) — auto-detected, not "real" until categorized + confirmed
@@ -127,13 +138,52 @@ final class TripStore: ObservableObject {
     ]
   }
 
-  func save() {
-    persist(trips)
-  }
-
   func resetDemoData() {
     trips = Self.makeMockTrips()
     do { try persistence.reset() } catch { /* best-effort */ }
+  }
+  #endif
+
+  /// Immediately persists current trips to disk, bypassing the debounce timer.
+  /// Call this when the app enters the background to prevent data loss.
+  func saveNow() {
+    persist(trips)
+  }
+
+  /// Retry geocoding for trips with placeholder labels and stored coordinates.
+  /// Call this on app launch to resolve addresses that failed while offline.
+  func retryFailedGeocoding() {
+    Task {
+      for (index, trip) in trips.enumerated() {
+        // Only retry if we have placeholder labels and stored coordinates
+        let hasPlaceholderStart = trip.startLabel == "Trip start"
+        let hasPlaceholderEnd = trip.endLabel == "Trip end"
+        
+        if hasPlaceholderStart, let lat = trip.startLatitude, let lon = trip.startLongitude {
+          let location = CLLocation(latitude: lat, longitude: lon)
+          if let result = await geocoder.addresses(for: location) {
+            await MainActor.run {
+              if index < trips.count && trips[index].id == trip.id {
+                trips[index].startLabel = result.shortLabel
+                trips[index].startAddress = result.fullAddress
+              }
+            }
+          }
+        }
+        
+        if hasPlaceholderEnd, let lat = trip.endLatitude, let lon = trip.endLongitude {
+          let location = CLLocation(latitude: lat, longitude: lon)
+          if let result = await geocoder.addresses(for: location) {
+            await MainActor.run {
+              if index < trips.count && trips[index].id == trip.id {
+                trips[index].endLabel = result.shortLabel
+                trips[index].endAddress = result.fullAddress
+              }
+            }
+          }
+        }
+      }
+    }
   }
 
   private func persist(_ value: [Trip]) {
