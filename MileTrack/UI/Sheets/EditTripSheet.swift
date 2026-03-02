@@ -68,7 +68,8 @@ struct EditTripSheet: View {
           Button(role: .destructive) {
             isPresentingDeleteConfirm = true
           } label: {
-            Label("Delete Trip", systemImage: "trash")
+            Label("Delete", systemImage: "trash")
+              .font(.caption.weight(.semibold))
           }
         }
       }
@@ -550,7 +551,7 @@ struct EditTripSheet: View {
     resolvedCategory != nil && tripIndex != nil
   }
 
-  private var resolvedCategory: String? {
+private var resolvedCategory: String? {
     let base = selectedCategory?.trimmingCharacters(in: .whitespacesAndNewlines)
     guard let base, !base.isEmpty else { return nil }
     return base

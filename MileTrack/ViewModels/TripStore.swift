@@ -10,6 +10,9 @@ final class TripStore: ObservableObject {
   private let geocoder = ReverseGeocodeService()
   private var cancellables: Set<AnyCancellable> = []
 
+  /// iCloud sync service. Observe this for live status in UI.
+  let iCloudSync = iCloudSyncService()
+
   init(
     trips: [Trip]? = nil,
     persistence: TripPersistenceStore? = nil
@@ -40,6 +43,32 @@ final class TripStore: ObservableObject {
         self?.persist(newValue)
       }
       .store(in: &cancellables)
+
+    // Forward iCloud status changes so any view observing TripStore re-renders.
+    iCloudSync.objectWillChange
+      .sink { [weak self] in self?.objectWillChange.send() }
+      .store(in: &cancellables)
+
+    // On real launches (not preview injection), check iCloud for any trips
+    // from other devices or restored after device loss.
+    // The container URL resolves asynchronously (url(forUbiquityContainerIdentifier:) can
+    // return nil if called too early). We observe $containerURL and react once it resolves.
+    if trips == nil {
+      iCloudSync.$containerURL
+        .compactMap { $0 }          // skip nil values
+        .prefix(1)                   // only trigger once per launch
+        .sink { [weak self] (_: URL) in
+          Task { [weak self] in
+            guard let self else { return }
+            // 1. Pull any trips from other devices / restored after device loss.
+            await self.syncFromCloudOnLaunch()
+            // 2. Always push current trips on first resolve — this creates the
+            //    iCloud folder and trips.json even if nothing changed locally.
+            await self.iCloudSync.backup(trips: self.trips)
+          }
+        }
+        .store(in: &cancellables)
+    }
   }
 
   var pendingTrips: [Trip] {
@@ -148,6 +177,81 @@ final class TripStore: ObservableObject {
   /// Call this when the app enters the background to prevent data loss.
   func saveNow() {
     persist(trips)
+    Task { [weak self] in
+      guard let self else { return }
+      await self.iCloudSync.backup(trips: self.trips)
+    }
+  }
+
+  // MARK: - iCloud sync
+
+  /// Check iCloud for any trips not in the local store (added on another device,
+  /// or restored after device loss). Silently no-ops if iCloud is unavailable.
+  private func syncFromCloudOnLaunch() async {
+    guard let merged = await iCloudSync.fetchAndMerge(localTrips: trips) else { return }
+    // fetchAndMerge returns nil when nothing changed — only update if there are new UUIDs.
+    trips = merged
+  }
+
+  // MARK: - Merge
+
+  /// Merges two or more trips into one. Source trips are marked .ignored (audit trail preserved).
+  /// The merged state is .confirmed if all sources are confirmed, otherwise .pendingCategory.
+  /// Returns the merged trip, or nil if fewer than 2 trips are provided.
+  @discardableResult
+  func merge(trips: [Trip]) -> Trip? {
+    guard trips.count >= 2 else { return nil }
+
+    let sorted = trips.sorted { $0.date < $1.date }
+    let earliest = sorted.first!
+    let latest = sorted.last!
+
+    let totalMiles = trips.reduce(0.0) { $0 + $1.distanceMiles }
+    let totalDuration = trips.reduce(0) { $0 + ($1.durationSeconds ?? 0) }
+
+    func commonValue(_ values: [String?]) -> String? {
+      let trimmed = values.map { $0?.trimmingCharacters(in: .whitespacesAndNewlines) }
+        .map { ($0?.isEmpty ?? true) ? nil : $0 }
+      guard let first = trimmed.first, let unwrapped = first else { return nil }
+      return trimmed.allSatisfy { ($0 ?? "").caseInsensitiveCompare(unwrapped) == .orderedSame } ? unwrapped : nil
+    }
+
+    let notesParts = trips
+      .compactMap { $0.notes?.trimmingCharacters(in: .whitespacesAndNewlines) }
+      .filter { !$0.isEmpty }
+
+    let allConfirmed = trips.allSatisfy { $0.state == .confirmed }
+    let vehicleUUIDs = trips.compactMap(\.vehicleID)
+    let sharedVehicle: UUID? = vehicleUUIDs.count == trips.count && Set(vehicleUUIDs).count == 1 ? vehicleUUIDs.first : nil
+
+    let merged = Trip(
+      date: earliest.date,
+      distanceMiles: totalMiles,
+      durationSeconds: totalDuration > 0 ? totalDuration : nil,
+      startLabel: earliest.startLabel,
+      endLabel: latest.endLabel,
+      startAddress: earliest.startAddress,
+      endAddress: latest.endAddress,
+      startLatitude: earliest.startLatitude,
+      startLongitude: earliest.startLongitude,
+      endLatitude: latest.endLatitude,
+      endLongitude: latest.endLongitude,
+      source: .auto,
+      state: allConfirmed ? .confirmed : .pendingCategory,
+      category: commonValue(trips.map(\.category)),
+      clientOrOrg: commonValue(trips.map(\.clientOrOrg)),
+      projectCode: commonValue(trips.map(\.projectCode)),
+      notes: notesParts.isEmpty ? nil : notesParts.joined(separator: " | "),
+      purpose: commonValue(trips.map(\.purpose)),
+      vehicleID: sharedVehicle
+    )
+
+    let sourceIDs = Set(trips.map(\.id))
+    for idx in self.trips.indices where sourceIDs.contains(self.trips[idx].id) {
+      self.trips[idx].state = .ignored
+    }
+    self.trips.insert(merged, at: 0)
+    return merged
   }
 
   /// Retry geocoding for trips with placeholder labels and stored coordinates.
@@ -191,6 +295,11 @@ final class TripStore: ObservableObject {
       try persistence.saveTrips(value)
     } catch {
       // Best-effort persistence: ignore write failures in UI-only store.
+    }
+    // Mirror every local save to iCloud — runs off the main actor in a background task.
+    Task { [weak self] in
+      guard let self else { return }
+      await self.iCloudSync.backup(trips: value)
     }
   }
 }

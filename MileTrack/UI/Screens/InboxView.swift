@@ -7,151 +7,131 @@ struct InboxView: View {
 
   @State private var editingTrip: Trip?
   @State private var isPresentingReviewAll: Bool = false
-  @State private var isSelecting: Bool = false
   @State private var selectedTripIDs: Set<UUID> = []
-  @State private var isPresentingMergeConfirm: Bool = false
   @State private var selectedConfirmedTrip: Trip?
 
   @AppStorage("useMetricUnits") private var useMetricUnits = false
 
   // Swipe gesture state
   @State private var swipeOffsets: [UUID: CGFloat] = [:]
-  @State private var noCategoryBounceIDs: Set<UUID> = []
 
   // Undo ignore toast
   @State private var ignoredTripForUndo: Trip?
   @State private var undoTask: Task<Void, Never>?
 
   private let swipeThreshold: CGFloat = 110
-  private let screenWidth: CGFloat = 500 // Large enough for animations to appear off-screen
+  private let screenWidth: CGFloat = 500
+
+  private var isInMergeMode: Bool { !selectedTripIDs.isEmpty }
 
   var body: some View {
     ZStack(alignment: .bottom) {
-    ScrollView {
-      VStack(alignment: .leading, spacing: 14) {
-        header
+      ScrollView {
+        VStack(alignment: .leading, spacing: 14) {
+          header
 
-        if tripStore.pendingTrips.isEmpty {
-          EmptyStateView(
-            systemImage: "tray",
-            title: "Inbox is clear",
-            subtitle: "Auto-detected trips appear here until you categorize and confirm them."
-          )
-        } else {
-          VStack(spacing: 12) {
-            ForEach(tripStore.pendingTrips, id: \.id) { trip in
-              let isSelected = selectedTripIDs.contains(trip.id)
-              let offset = swipeOffsets[trip.id] ?? 0
+          if tripStore.pendingTrips.isEmpty {
+            EmptyStateView(
+              systemImage: "tray",
+              title: "Inbox is clear",
+              subtitle: "Auto-detected trips appear here until you categorize and confirm them."
+            )
+          } else {
+            VStack(spacing: 12) {
+              ForEach(tripStore.pendingTrips, id: \.id) { trip in
+                let isSelected = selectedTripIDs.contains(trip.id)
+                let offset = swipeOffsets[trip.id] ?? 0
 
-              ZStack(alignment: .leading) {
-                // Swipe hint backgrounds
-                if !isSelecting {
-                  swipeHintBackground(for: trip, offset: offset)
-                }
-
-                ZStack {
-                  TripInboxCard(
-                    trip: trip,
-                    selectedCategory: trip.category,
-                    onSelectCategory: { category in
-                      setCategory(tripID: trip.id, category: category)
-                    },
-                    onConfirm: {
-                      Haptics.success()
-                      confirm(tripID: trip.id)
-                      selectedTripIDs.remove(trip.id)
-                    },
-                    onIgnore: {
-                      Haptics.warning()
-                      ignore(tripID: trip.id)
-                      selectedTripIDs.remove(trip.id)
-                    },
-                    onEdit: {
-                      editingTrip = trip
-                    }
-                  )
-                  .allowsHitTesting(!isSelecting && offset == 0)
-                  .opacity(isSelecting && !isSelected ? 0.70 : 1.0)
-                  .overlay {
-                    if isSelecting {
-                      RoundedRectangle(cornerRadius: DesignConstants.Radius.card, style: .continuous)
-                        .strokeBorder(
-                          (isSelected ? Color.accentColor : Color.primary.opacity(0.08)),
-                          lineWidth: isSelected ? 2 : 1
-                        )
-                    }
+                ZStack(alignment: .leading) {
+                  // Swipe hint backgrounds (disabled during merge selection)
+                  if !isInMergeMode {
+                    swipeHintBackground(for: trip, offset: offset)
                   }
 
-                  if isSelecting {
-                    selectIndicator(for: trip.id)
+                  ZStack(alignment: .topLeading) {
+                    TripInboxCard(
+                      trip: trip,
+                      selectedCategory: trip.category,
+                      onSelectCategory: { category in
+                        setCategory(tripID: trip.id, category: category)
+                      },
+                      onConfirm: {
+                        Haptics.success()
+                        confirm(tripID: trip.id)
+                        selectedTripIDs.remove(trip.id)
+                      },
+                      onIgnore: {
+                        Haptics.warning()
+                        ignore(tripID: trip.id)
+                        selectedTripIDs.remove(trip.id)
+                      },
+                      onEdit: {
+                        editingTrip = trip
+                      }
+                    )
+                    .allowsHitTesting(!isInMergeMode && offset == 0)
+                    .opacity(!isInMergeMode || isSelected ? 1.0 : 0.55)
+                    .overlay {
+                      if isSelected {
+                        RoundedRectangle(cornerRadius: DesignConstants.Radius.card, style: .continuous)
+                          .strokeBorder(Color.accentColor, lineWidth: 2)
+                      }
+                    }
+                    .animation(.easeInOut(duration: 0.18), value: isSelected)
+                    .animation(.easeInOut(duration: 0.18), value: isInMergeMode)
+
+                    selectionCircle(for: trip.id)
                       .padding(10)
                   }
+                  .offset(x: isInMergeMode ? 0 : offset)
                 }
-                .offset(x: isSelecting ? 0 : offset)
-              }
-              .clipped()
-              .contentShape(Rectangle())
-              .gesture(isSelecting ? nil : swipeDragGesture(for: trip))
-              .onTapGesture {
-                guard isSelecting else { return }
-                if selectedTripIDs.contains(trip.id) {
-                  selectedTripIDs.remove(trip.id)
-                } else {
-                  selectedTripIDs.insert(trip.id)
+                .clipped()
+                .contentShape(Rectangle())
+                .gesture(!isInMergeMode ? swipeDragGesture(for: trip) : nil)
+                .onTapGesture {
+                  guard isInMergeMode else { return }
+                  withAnimation(.spring(response: 0.25, dampingFraction: 0.7)) {
+                    if selectedTripIDs.contains(trip.id) {
+                      selectedTripIDs.remove(trip.id)
+                    } else {
+                      selectedTripIDs.insert(trip.id)
+                    }
+                  }
                 }
               }
             }
           }
-        }
-        
-        recentConfirmedSection
-      }
-      .padding(.horizontal, 16)
-      .padding(.vertical, 12)
-    }
-    .background(.background)
 
-    // Undo toast
-    if let trip = ignoredTripForUndo {
-      undoToast(for: trip)
-        .transition(.move(edge: .bottom).combined(with: .opacity))
-        .zIndex(10)
-    }
+          recentConfirmedSection
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
+      }
+      .background(.background)
+
+      // Floating merge bar — slides up when trips are selected
+      if isInMergeMode {
+        mergeActionBar
+          .transition(.move(edge: .bottom).combined(with: .opacity))
+          .zIndex(15)
+      }
+
+      // Undo ignore toast (highest layer)
+      if let trip = ignoredTripForUndo {
+        undoToast(for: trip)
+          .transition(.move(edge: .bottom).combined(with: .opacity))
+          .zIndex(20)
+      }
     } // ZStack
     .navigationTitle("Inbox")
     .toolbar {
       if !tripStore.pendingTrips.isEmpty {
-        ToolbarItem(placement: .topBarLeading) {
-          if isSelecting {
-            Button("Cancel") {
-              isSelecting = false
-              selectedTripIDs.removeAll()
-            }
-            .accessibilityLabel("Cancel selection")
-          } else {
-            Button("Select") {
-              isSelecting = true
-              selectedTripIDs.removeAll()
-            }
-            .accessibilityLabel("Select")
-          }
-        }
-
         ToolbarItem(placement: .topBarTrailing) {
-          if isSelecting {
-            Button("Merge") {
-              isPresentingMergeConfirm = true
-            }
-            .disabled(selectedTripIDs.count < 2)
-            .accessibilityLabel("Merge")
-            .accessibilityHint(selectedTripIDs.count < 2 ? "Select at least two trips to merge." : "Merge selected trips into one.")
-          } else {
-            Button("Review All") {
-              isPresentingReviewAll = true
-            }
-            .accessibilityLabel("Review All")
-            .accessibilityHint("Review pending trips one by one.")
+          Button("Review All") {
+            isPresentingReviewAll = true
           }
+          .accessibilityLabel("Review All")
+          .accessibilityHint("Review pending trips one by one.")
         }
       }
     }
@@ -171,25 +151,13 @@ struct InboxView: View {
         .environmentObject(categoriesStore)
         .environmentObject(clientStore)
     }
-    .alert("Merge trips?", isPresented: $isPresentingMergeConfirm) {
-      Button("Cancel", role: .cancel) {}
-      Button("Merge", role: .destructive) {
-        Haptics.success()
-        mergeSelectedTrips()
-      }
-    } message: {
-      Text("Merge \(selectedTripIDs.count) trips into one pending trip?")
-    }
     .onChange(of: tripStore.pendingTrips.count) { _, _ in
-      // If trips change (confirm/ignore), remove any IDs that are no longer pending.
       let pendingIDs = Set(tripStore.pendingTrips.map(\.id))
       selectedTripIDs = selectedTripIDs.intersection(pendingIDs)
-      if tripStore.pendingTrips.isEmpty {
-        isSelecting = false
-        selectedTripIDs.removeAll()
-      }
     }
   }
+
+  // MARK: - Header
 
   private var header: some View {
     GlassCard {
@@ -216,7 +184,9 @@ struct InboxView: View {
       }
     }
   }
-  
+
+  // MARK: - Recent Confirmed
+
   private var recentConfirmedSection: some View {
     VStack(alignment: .leading, spacing: 10) {
       HStack {
@@ -297,11 +267,11 @@ struct InboxView: View {
       }
     }
   }
-  
+
   private var recentConfirmedTrips: [Trip] {
     Array(tripStore.confirmedTrips.prefix(5))
   }
-  
+
   private func routeLabel(_ trip: Trip) -> String {
     let start = trip.startLabel?.trimmingCharacters(in: .whitespacesAndNewlines)
     let end = trip.endLabel?.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -310,7 +280,7 @@ struct InboxView: View {
     if let end, !end.isEmpty { return end }
     return "Trip"
   }
-  
+
   private func durationFormatted(_ seconds: Int) -> String {
     let minutes = max(0, seconds / 60)
     if minutes < 60 { return "\(minutes)m" }
@@ -318,6 +288,8 @@ struct InboxView: View {
     let rem = minutes % 60
     return rem == 0 ? "\(hours)h" : "\(hours)h \(rem)m"
   }
+
+  // MARK: - Actions
 
   private func setCategory(tripID: UUID, category: String?) {
     guard let idx = tripStore.trips.firstIndex(where: { $0.id == tripID }) else { return }
@@ -368,26 +340,106 @@ struct InboxView: View {
     }
   }
 
+  private func mergeSelectedTrips() {
+    let selected = tripStore.pendingTrips.filter { selectedTripIDs.contains($0.id) }
+    guard selected.count >= 2 else { return }
+    tripStore.merge(trips: selected)
+    withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
+      selectedTripIDs.removeAll()
+    }
+  }
+
+  // MARK: - Selection Circle
+
   @ViewBuilder
-  private func selectIndicator(for tripID: UUID) -> some View {
+  private func selectionCircle(for tripID: UUID) -> some View {
     let isSelected = selectedTripIDs.contains(tripID)
     Button {
-      if isSelected {
-        selectedTripIDs.remove(tripID)
-      } else {
-        selectedTripIDs.insert(tripID)
+      withAnimation(.spring(response: 0.25, dampingFraction: 0.7)) {
+        if isSelected {
+          selectedTripIDs.remove(tripID)
+        } else {
+          selectedTripIDs.insert(tripID)
+        }
       }
+      Haptics.impact(.light)
     } label: {
       Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
         .font(.title3)
-        .foregroundStyle(isSelected ? Color.accentColor : Color.secondary)
-        .background(.thinMaterial, in: Circle())
-        .overlay {
-          Circle().strokeBorder(Color.primary.opacity(0.10), lineWidth: 1)
-        }
+        .foregroundStyle(
+          isSelected
+            ? Color.accentColor
+            : Color.primary.opacity(isInMergeMode ? 0.45 : 0.22)
+        )
+        .background(Circle().fill(.thinMaterial))
+        .shadow(color: .black.opacity(0.08), radius: 3, x: 0, y: 1)
     }
     .buttonStyle(.plain)
-    .accessibilityLabel(isSelected ? "Deselect trip" : "Select trip")
+    .animation(.spring(response: 0.25, dampingFraction: 0.7), value: isSelected)
+    .animation(.easeInOut(duration: 0.15), value: isInMergeMode)
+    .accessibilityLabel(isSelected ? "Deselect trip" : "Select trip to merge")
+  }
+
+  // MARK: - Merge Action Bar
+
+  private var mergeActionBar: some View {
+    HStack(spacing: 16) {
+      Button {
+        withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
+          selectedTripIDs.removeAll()
+        }
+      } label: {
+        Image(systemName: "xmark.circle.fill")
+          .font(.title3)
+          .foregroundStyle(.secondary)
+      }
+      .buttonStyle(.plain)
+      .accessibilityLabel("Cancel selection")
+
+      Spacer()
+
+      Text(selectedTripIDs.count == 1 ? "1 trip selected" : "\(selectedTripIDs.count) trips selected")
+        .font(.subheadline)
+        .foregroundStyle(.primary)
+        .contentTransition(.numericText())
+        .animation(.spring(response: 0.3), value: selectedTripIDs.count)
+
+      Spacer()
+
+      Button {
+        Haptics.success()
+        mergeSelectedTrips()
+      } label: {
+        Label("Merge", systemImage: "arrow.triangle.merge")
+          .font(.subheadline.weight(.semibold))
+          .padding(.horizontal, 16)
+          .padding(.vertical, 9)
+          .background(
+            selectedTripIDs.count >= 2 ? Color.accentColor : Color.secondary.opacity(0.2),
+            in: Capsule()
+          )
+          .foregroundStyle(selectedTripIDs.count >= 2 ? Color.white : Color.secondary)
+          .animation(.easeInOut(duration: 0.18), value: selectedTripIDs.count >= 2)
+      }
+      .buttonStyle(.plain)
+      .disabled(selectedTripIDs.count < 2)
+      .accessibilityLabel("Merge selected trips")
+      .accessibilityHint(
+        selectedTripIDs.count < 2
+          ? "Select at least 2 trips to merge"
+          : "Merge \(selectedTripIDs.count) trips into one"
+      )
+    }
+    .padding(.horizontal, 20)
+    .padding(.vertical, 14)
+    .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+    .overlay {
+      RoundedRectangle(cornerRadius: 20, style: .continuous)
+        .strokeBorder(Color.primary.opacity(0.10), lineWidth: 1)
+    }
+    .shadow(color: .black.opacity(0.12), radius: 16, x: 0, y: 6)
+    .padding(.horizontal, 16)
+    .padding(.bottom, 12)
   }
 
   // MARK: - Undo Toast
@@ -440,7 +492,6 @@ struct InboxView: View {
     let hasCategory = !(trip.category?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ?? true)
 
     ZStack {
-      // Confirm hint (right swipe → green)
       if isConfirmSide {
         RoundedRectangle(cornerRadius: DesignConstants.Radius.card, style: .continuous)
           .fill(hasCategory ? Color.green.opacity(0.15 + progress * 0.25) : Color.orange.opacity(0.15 + progress * 0.20))
@@ -454,7 +505,6 @@ struct InboxView: View {
         }
       }
 
-      // Ignore hint (left swipe → red)
       if isIgnoreSide {
         RoundedRectangle(cornerRadius: DesignConstants.Radius.card, style: .continuous)
           .fill(Color.red.opacity(0.15 + progress * 0.25))
@@ -473,10 +523,8 @@ struct InboxView: View {
   private func swipeDragGesture(for trip: Trip) -> some Gesture {
     DragGesture(minimumDistance: 20, coordinateSpace: .local)
       .onChanged { value in
-        // Only respond to primarily horizontal drags
         guard abs(value.translation.width) > abs(value.translation.height) * 1.2 else { return }
         let raw = value.translation.width
-        // Apply rubber-band resistance beyond threshold
         let damped: CGFloat
         if abs(raw) > swipeThreshold {
           let excess = abs(raw) - swipeThreshold
@@ -491,7 +539,6 @@ struct InboxView: View {
         let hasCategory = !(trip.category?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ?? true)
 
         if offset >= swipeThreshold {
-          // Swipe right — confirm
           if hasCategory {
             withAnimation(.easeOut(duration: 0.22)) {
               swipeOffsets[trip.id] = screenWidth
@@ -502,18 +549,15 @@ struct InboxView: View {
               swipeOffsets.removeValue(forKey: trip.id)
             }
           } else {
-            // No category — bounce back and signal error
             Haptics.error()
             withAnimation(.spring(response: 0.4, dampingFraction: 0.5)) {
               swipeOffsets[trip.id] = 0
             }
-            // Open categorize sheet after bounce
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
               editingTrip = trip
             }
           }
         } else if offset <= -swipeThreshold {
-          // Swipe left — ignore
           withAnimation(.easeOut(duration: 0.22)) {
             swipeOffsets[trip.id] = -screenWidth
           }
@@ -523,71 +567,11 @@ struct InboxView: View {
             swipeOffsets.removeValue(forKey: trip.id)
           }
         } else {
-          // Below threshold — spring back
           withAnimation(.spring(response: 0.35, dampingFraction: 0.7)) {
             swipeOffsets[trip.id] = 0
           }
         }
       }
-  }
-
-  private func mergeSelectedTrips() {
-    let pending = tripStore.pendingTrips
-    let selected = pending.filter { selectedTripIDs.contains($0.id) }
-    guard selected.count >= 2 else { return }
-
-    // Choose earliest for start, latest for end.
-    let sorted = selected.sorted { $0.date < $1.date }
-    let earliest = sorted.first!
-    let latest = sorted.last!
-
-    let totalMiles = selected.reduce(0.0) { $0 + $1.distanceMiles }
-
-    func commonValue(_ values: [String?]) -> String? {
-      let trimmed = values.map { $0?.trimmingCharacters(in: .whitespacesAndNewlines) }.map { ($0?.isEmpty ?? true) ? nil : $0 }
-      let first = trimmed.first ?? nil
-      guard let first else { return nil }
-      if trimmed.allSatisfy({ ($0 ?? "").caseInsensitiveCompare(first) == .orderedSame }) {
-        return first
-      }
-      return nil
-    }
-
-    let category = commonValue(selected.map(\.category))
-    let client = commonValue(selected.map(\.clientOrOrg))
-    let project = commonValue(selected.map(\.projectCode))
-
-    let notesParts = selected
-      .compactMap { $0.notes?.trimmingCharacters(in: .whitespacesAndNewlines) }
-      .filter { !$0.isEmpty }
-    let notes = notesParts.isEmpty ? nil : notesParts.joined(separator: " | ")
-
-    let mergedTrip = Trip(
-      date: earliest.date,
-      distanceMiles: totalMiles,
-      durationSeconds: nil,
-      startLabel: earliest.startLabel,
-      endLabel: latest.endLabel,
-      source: .auto,
-      state: .pendingCategory,
-      category: category,
-      clientOrOrg: client,
-      projectCode: project,
-      suggestedByRuleName: nil,
-      notes: notes
-    )
-
-    // Mark original trips ignored to preserve audit trail.
-    let selectedIDs = Set(selected.map(\.id))
-    for idx in tripStore.trips.indices {
-      if selectedIDs.contains(tripStore.trips[idx].id) {
-        tripStore.trips[idx].state = .ignored
-      }
-    }
-
-    tripStore.trips.insert(mergedTrip, at: 0)
-    selectedTripIDs.removeAll()
-    isSelecting = false
   }
 }
 
@@ -600,4 +584,3 @@ struct InboxView: View {
   .environmentObject(ClientsStore())
   .environmentObject(RulesStore())
 }
-
