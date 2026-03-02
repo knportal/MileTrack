@@ -208,7 +208,7 @@
 					};
 				};
 			};
-			buildConfigurationList = B90C24C22F31052E008EA030 /* Build configuration list for PBXProject "MileTrack" */;
+			buildConfigurationList = B90C24C22F31052E008EA030 /* Build configuration list for PBXProject "MileTrack by Plenitudo" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -422,23 +422,26 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = MileTrack/MileTrack.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = C8SXTF2Y53;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = MileTrack/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "MileTrack by Plenitudo";
 				INFOPLIST_KEY_LSApplicationCategoryType = "";
-				INFOPLIST_KEY_NSFileProviderDomainUsageDescription = "MileTrack needs to access files to export trip reports and receipts.";
-				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "MileTrack needs background location access to automatically detect and track your trips even when the app is closed. This enables Auto Mode to work seamlessly without requiring the app to be open.";
-				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "MileTrack needs your location to track your trips and calculate mileage while you're using the app.";
-				INFOPLIST_KEY_NSMotionUsageDescription = "MileTrack uses motion sensors to improve trip detection accuracy and reduce battery usage by filtering GPS noise. Your motion data is processed on-device and never shared.";
-				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "MileTrack uses your photos to attach receipt images to trips for expense tracking\n";
+				INFOPLIST_KEY_NSFileProviderDomainUsageDescription = "MileTrack by Plenitudo needs to access files to export trip reports and receipts.";
+				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "MileTrack by Plenitudo needs background location access to automatically detect and track your trips even when the app is closed. This enables Auto Mode to work seamlessly without requiring the app to be open.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "MileTrack by Plenitudo needs your location to track your trips and calculate mileage while you're using the app.";
+				INFOPLIST_KEY_NSMotionUsageDescription = "MileTrack by Plenitudo uses motion sensors to improve trip detection accuracy and reduce battery usage by filtering GPS noise. Your motion data is processed on-device and never shared.";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "MileTrack by Plenitudo uses your photos to attach receipt images to trips for expense tracking\n";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -461,23 +464,26 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = MileTrack/MileTrack.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = C8SXTF2Y53;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = MileTrack/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "MileTrack by Plenitudo";
 				INFOPLIST_KEY_LSApplicationCategoryType = "";
-				INFOPLIST_KEY_NSFileProviderDomainUsageDescription = "MileTrack needs to access files to export trip reports and receipts.";
-				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "MileTrack needs background location access to automatically detect and track your trips even when the app is closed. This enables Auto Mode to work seamlessly without requiring the app to be open.";
-				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "MileTrack needs your location to track your trips and calculate mileage while you're using the app.";
-				INFOPLIST_KEY_NSMotionUsageDescription = "MileTrack uses motion sensors to improve trip detection accuracy and reduce battery usage by filtering GPS noise. Your motion data is processed on-device and never shared.";
-				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "MileTrack uses your photos to attach receipt images to trips for expense tracking\n";
+				INFOPLIST_KEY_NSFileProviderDomainUsageDescription = "MileTrack by Plenitudo needs to access files to export trip reports and receipts.";
+				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "MileTrack by Plenitudo needs background location access to automatically detect and track your trips even when the app is closed. This enables Auto Mode to work seamlessly without requiring the app to be open.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "MileTrack by Plenitudo needs your location to track your trips and calculate mileage while you're using the app.";
+				INFOPLIST_KEY_NSMotionUsageDescription = "MileTrack by Plenitudo uses motion sensors to improve trip detection accuracy and reduce battery usage by filtering GPS noise. Your motion data is processed on-device and never shared.";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "MileTrack by Plenitudo uses your photos to attach receipt images to trips for expense tracking\n";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -582,7 +588,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		B90C24C22F31052E008EA030 /* Build configuration list for PBXProject "MileTrack" */ = {
+		B90C24C22F31052E008EA030 /* Build configuration list for PBXProject "MileTrack by Plenitudo" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				B90C24E82F31052F008EA030 /* Debug */,

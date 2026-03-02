@@ -85,6 +85,7 @@ struct ReportsView: View {
       VStack(alignment: .leading, spacing: DesignConstants.Spacing.md) {
         dateRangeTabs
         summaryCards
+        milesChartSection
         categoryChartSection
         filterChips
         exportActions
@@ -231,8 +232,24 @@ struct ReportsView: View {
     filteredConfirmedTrips.reduce(0) { $0 + $1.distanceMiles }
   }
 
-  private var estimatedValue: Double {
-    totalMiles * 0.70
+  private var estimatedValue: Decimal {
+    filteredConfirmedTrips.reduce(Decimal(0)) { acc, trip in
+      let rate = mileageRatesStore.rate(for: trip)?.ratePerMile ?? Decimal(string: "0.70")!
+      return acc + Decimal(trip.distanceMiles) * rate
+    }
+  }
+
+  /// The effective rate shown in the footnote (first active rate, or fallback).
+  private var effectiveRateFootnote: String {
+    if let rate = mileageRatesStore.rates.first(where: { $0.isActive(on: Date()) }) {
+      let formatted = NumberFormatter()
+      formatted.numberStyle = .currency
+      formatted.currencyCode = "USD"
+      formatted.maximumFractionDigits = 2
+      let rateStr = formatted.string(from: rate.ratePerMile as NSNumber) ?? "$0.70"
+      return "@ \(rateStr)/mi"
+    }
+    return "@ $0.70/mi"
   }
 
   private var tripCount: Int {
@@ -249,6 +266,82 @@ struct ReportsView: View {
     let id: String
     let label: String
     let miles: Double
+  }
+
+  private var monthlyChartData: [ChartPoint] {
+    let calendar = Calendar.current
+    var totals: [Int: Double] = [:]
+    for trip in filteredConfirmedTrips {
+      let month = calendar.component(.month, from: trip.date)
+      totals[month, default: 0] += trip.distanceMiles
+    }
+    let formatter = DateFormatter()
+    formatter.dateFormat = "MMM"
+    return (1...12).compactMap { month -> ChartPoint? in
+      guard let miles = totals[month] else { return nil }
+      var components = DateComponents()
+      components.year = 2000
+      components.month = month
+      components.day = 1
+      let label = calendar.date(from: components).map { formatter.string(from: $0) } ?? "\(month)"
+      return ChartPoint(id: "\(month)", label: label, miles: miles)
+    }
+  }
+
+  private var dailyChartData: [ChartPoint] {
+    let calendar = Calendar.current
+    var totals: [Int: Double] = [:]
+    for trip in filteredConfirmedTrips {
+      let day = calendar.component(.day, from: trip.date)
+      totals[day, default: 0] += trip.distanceMiles
+    }
+    return totals
+      .sorted { $0.key < $1.key }
+      .map { ChartPoint(id: "\($0.key)", label: "\($0.key)", miles: $0.value) }
+  }
+
+  @ViewBuilder
+  private var milesChartSection: some View {
+    let data = selectedDateTab == .month ? dailyChartData : monthlyChartData
+    if !data.isEmpty {
+      VStack(alignment: .leading, spacing: DesignConstants.Spacing.sm) {
+        Text(selectedDateTab == .month ? "Daily miles" : "Miles by month")
+          .font(.subheadline.weight(.semibold))
+          .foregroundStyle(.secondary)
+
+        GlassCard {
+          Chart(data) { point in
+            BarMark(
+              x: .value("Period", point.label),
+              y: .value("Miles", point.miles)
+            )
+            .foregroundStyle(Color.accentColor.gradient)
+            .cornerRadius(3)
+          }
+          .frame(height: 150)
+          .chartYAxis {
+            AxisMarks(position: .leading) { value in
+              AxisGridLine()
+              AxisValueLabel {
+                if let v = value.as(Double.self) {
+                  Text(DistanceFormatter.format(v))
+                    .font(.caption2)
+                }
+              }
+            }
+          }
+          .chartXAxis {
+            AxisMarks { value in
+              AxisValueLabel {
+                if let str = value.as(String.self) {
+                  Text(str).font(.caption2)
+                }
+              }
+            }
+          }
+        }
+      }
+    }
   }
 
   private var categoryChartData: [ChartPoint] {
@@ -439,10 +532,7 @@ struct ReportsView: View {
       .padding(.vertical, 10)
       .frame(maxWidth: .infinity)
       .foregroundStyle(isSelected ? .primary : .secondary)
-      .glassEffect(
-        isSelected ? .regular.tint(.accentColor).interactive() : .regular.interactive(),
-        in: .rect(cornerRadius: 14)
-      )
+      .modifier(DateRangeTabGlassModifier(isSelected: isSelected))
     }
     .buttonStyle(.plain)
     .accessibilityLabel("\(tab.rawValue)\(needsPro ? ", requires Pro" : "")")
@@ -486,7 +576,7 @@ struct ReportsView: View {
         title: "Est. Value",
         value: currencyFormatted(estimatedValue),
         systemImage: "dollarsign.circle",
-        footnote: "@ $0.70/mi"
+        footnote: effectiveRateFootnote
       )
     }
   }
@@ -563,10 +653,7 @@ struct ReportsView: View {
       .padding(.horizontal, 14)
       .padding(.vertical, 9)
       .foregroundStyle(isActive ? .primary : .secondary)
-      .glassEffect(
-        isActive ? .regular.tint(.accentColor) : .regular,
-        in: .capsule
-      )
+      .modifier(MonthButtonGlassModifier(isActive: isActive))
     }
     .buttonStyle(.plain)
   }
@@ -607,7 +694,7 @@ struct ReportsView: View {
       }
       .frame(maxWidth: .infinity)
       .padding(.vertical, 12)
-      .glassEffect(.regular.interactive(), in: .rect(cornerRadius: 14))
+      .modifier(ExportButtonGlassModifier())
     }
     .buttonStyle(.plain)
     .opacity(isPro ? 0.7 : 1)
@@ -664,7 +751,7 @@ struct ReportsView: View {
           }
           .foregroundStyle(.secondary)
           .padding(12)
-          .glassEffect(.regular, in: .rect(cornerRadius: 12))
+          .modifier(UpgradePromptGlassModifier())
         }
         .buttonStyle(.plain)
       }
@@ -907,8 +994,12 @@ struct ReportsView: View {
     DistanceFormatter.format(miles)
   }
 
-  private func currencyFormatted(_ value: Double) -> String {
-    value.formatted(.currency(code: Locale.current.currency?.identifier ?? "USD"))
+  private func currencyFormatted(_ value: Decimal) -> String {
+    let formatter = NumberFormatter()
+    formatter.numberStyle = .currency
+    formatter.currencyCode = Locale.current.currency?.identifier ?? "USD"
+    formatter.maximumFractionDigits = 0
+    return formatter.string(from: value as NSNumber) ?? "$0"
   }
 
   private func routeLabel(_ trip: Trip) -> String {
@@ -948,7 +1039,7 @@ struct ReportsView: View {
     df.locale = Locale(identifier: "en_US_POSIX")
     df.dateFormat = "yyyy-MM-dd_HHmm"
     let stamp = df.string(from: Date())
-    let filename = "MileTrack_\(selectedDateTab.rawValue)_\(stamp)"
+    let filename = "MileTrackByPlenitudo_\(selectedDateTab.rawValue)_\(stamp)"
 
     do {
       let url = try exportService.writeCSVToTemporaryFile(csv: csv, filename: filename)
@@ -978,7 +1069,7 @@ struct ReportsView: View {
     df.locale = Locale(identifier: "en_US_POSIX")
     df.dateFormat = "yyyy-MM-dd_HHmm"
     let stamp = df.string(from: Date())
-    let filename = "MileTrack_Summary_\(selectedDateTab.rawValue)_\(stamp)"
+    let filename = "MileTrackByPlenitudo_Summary_\(selectedDateTab.rawValue)_\(stamp)"
 
     do {
       let url = try pdfExportService.writeSummaryPDFToTemporaryFile(
@@ -1053,6 +1144,82 @@ private struct ActivityShareSheet: UIViewControllerRepresentable {
   }
 
   func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
+}
+
+// MARK: - Glass Effect Modifiers with iOS 26 Availability
+
+private struct DateRangeTabGlassModifier: ViewModifier {
+  let isSelected: Bool
+  
+  func body(content: Content) -> some View {
+    if #available(iOS 26.0, *) {
+      content
+        .glassEffect(
+          isSelected ? .regular.tint(.accentColor).interactive() : .regular.interactive(),
+          in: .rect(cornerRadius: 14)
+        )
+    } else {
+      content
+        .background {
+          RoundedRectangle(cornerRadius: 14)
+            .fill(isSelected ? Color.accentColor.opacity(0.2) : .clear)
+            .background(.ultraThinMaterial)
+            .clipShape(RoundedRectangle(cornerRadius: 14))
+        }
+    }
+  }
+}
+
+private struct MonthButtonGlassModifier: ViewModifier {
+  let isActive: Bool
+  
+  func body(content: Content) -> some View {
+    if #available(iOS 26.0, *) {
+      content
+        .glassEffect(
+          isActive ? .regular.tint(.accentColor) : .regular,
+          in: .capsule
+        )
+    } else {
+      content
+        .background {
+          Capsule()
+            .fill(isActive ? Color.accentColor.opacity(0.2) : .clear)
+            .background(.ultraThinMaterial)
+            .clipShape(Capsule())
+        }
+    }
+  }
+}
+
+private struct ExportButtonGlassModifier: ViewModifier {
+  func body(content: Content) -> some View {
+    if #available(iOS 26.0, *) {
+      content
+        .glassEffect(.regular.interactive(), in: .rect(cornerRadius: 14))
+    } else {
+      content
+        .background {
+          RoundedRectangle(cornerRadius: 14)
+            .fill(.ultraThinMaterial)
+        }
+    }
+  }
+}
+
+private struct UpgradePromptGlassModifier: ViewModifier {
+  func body(content: Content) -> some View {
+    if #available(iOS 26.0, *) {
+      content
+        .glassEffect(.regular, in: .rect(cornerRadius: 12))
+    } else {
+      content
+        .background {
+          RoundedRectangle(cornerRadius: 12)
+            .fill(.ultraThinMaterial)
+        }
+    }
+  }
 }
 
 #Preview {
