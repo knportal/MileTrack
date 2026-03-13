@@ -6,5 +6,9 @@
 	<array>
 		<string>location</string>
 	</array>
+	<key>UIAppFonts</key>
+	<array>
+		<string>Manrope-VariableFont_wght.ttf</string>
+	</array>
 </dict>
 </plist>

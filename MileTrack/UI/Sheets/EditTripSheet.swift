@@ -32,7 +32,8 @@ struct EditTripSheet: View {
   @State private var addClientError: String?
   
   @State private var isPresentingDeleteConfirm: Bool = false
-  
+  @State private var isPresentingMergeSheet: Bool = false
+
   private let calculator = ExpenseCalculator()
 
   var body: some View {
@@ -72,6 +73,21 @@ struct EditTripSheet: View {
               .font(.caption.weight(.semibold))
           }
         }
+        if !nearbyConfirmedTrips.isEmpty {
+          ToolbarItem(placement: .bottomBar) {
+            Spacer()
+          }
+          ToolbarItem(placement: .bottomBar) {
+            Button {
+              isPresentingMergeSheet = true
+            } label: {
+              Label("Merge with trip…", systemImage: "arrow.triangle.merge")
+                .font(.caption.weight(.semibold))
+            }
+            .accessibilityLabel("Merge with another trip")
+            .accessibilityHint("Combine this trip with a nearby trip from the same day.")
+          }
+        }
       }
     }
     .onAppear {
@@ -100,6 +116,17 @@ struct EditTripSheet: View {
       }
     } message: {
       Text("This trip will be removed from your records. This action cannot be undone.")
+    }
+    .sheet(isPresented: $isPresentingMergeSheet, onDismiss: {
+      // Dismiss EditTripSheet too if the trip was merged (no longer exists)
+      if tripIndex == nil {
+        dismiss()
+      }
+    }) {
+      if let trip {
+        MergeTripsSheet(anchorTrip: trip)
+          .environmentObject(tripStore)
+      }
     }
   }
 
@@ -178,7 +205,7 @@ struct EditTripSheet: View {
           Text("Start Location")
             .font(.caption)
             .foregroundStyle(.secondary)
-          TextField("Start address", text: $startLabel)
+          TextField("Start location name", text: $startLabel)
             .textInputAutocapitalization(.words)
             .padding(.horizontal, 12)
             .padding(.vertical, 10)
@@ -187,14 +214,20 @@ struct EditTripSheet: View {
               RoundedRectangle(cornerRadius: 14, style: .continuous)
                 .strokeBorder(Color.primary.opacity(0.10), lineWidth: 1)
             }
-            .accessibilityLabel("Start address")
+            .accessibilityLabel("Start location name")
+          if let addr = trip?.startAddress, !addr.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            Text(addr)
+              .font(.caption2)
+              .foregroundStyle(.secondary)
+              .padding(.horizontal, 4)
+          }
         }
 
         VStack(alignment: .leading, spacing: 8) {
           Text("End Location")
             .font(.caption)
             .foregroundStyle(.secondary)
-          TextField("End address", text: $endLabel)
+          TextField("End location name", text: $endLabel)
             .textInputAutocapitalization(.words)
             .padding(.horizontal, 12)
             .padding(.vertical, 10)
@@ -203,7 +236,27 @@ struct EditTripSheet: View {
               RoundedRectangle(cornerRadius: 14, style: .continuous)
                 .strokeBorder(Color.primary.opacity(0.10), lineWidth: 1)
             }
-            .accessibilityLabel("End address")
+            .accessibilityLabel("End location name")
+          if let addr = trip?.endAddress, !addr.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            Text(addr)
+              .font(.caption2)
+              .foregroundStyle(.secondary)
+              .padding(.horizontal, 4)
+          }
+        }
+
+        if let stops = trip?.waypoints, !stops.isEmpty {
+          Divider()
+          VStack(alignment: .leading, spacing: 4) {
+            Text("Intermediate Stops")
+              .font(.caption)
+              .foregroundStyle(.secondary)
+            ForEach(Array(stops.enumerated()), id: \.offset) { _, stop in
+              Text("· \(stop)")
+                .font(.subheadline)
+                .foregroundStyle(.primary)
+            }
+          }
         }
       }
     }
@@ -560,6 +613,14 @@ private var resolvedCategory: String? {
   private var selectedVehicleName: String {
     guard let id = selectedVehicleID else { return "No vehicle" }
     return vehiclesStore.vehicles.first(where: { $0.id == id })?.name ?? "Unknown vehicle"
+  }
+
+  private var nearbyConfirmedTrips: [Trip] {
+    guard let trip else { return [] }
+    let window: TimeInterval = 24 * 60 * 60
+    return tripStore.confirmedTrips.filter { other in
+      other.id != trip.id && abs(other.date.timeIntervalSince(trip.date)) <= window
+    }
   }
 
   // MARK: - Actions

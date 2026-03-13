@@ -13,8 +13,6 @@ struct HomeView: View {
 
   @AppStorage("useMetricUnits") private var useMetricUnits = false
 
-  @State private var isPresentingManualTrip = false
-
   var body: some View {
     ScrollView {
       VStack(spacing: DesignConstants.Spacing.sm) {
@@ -28,17 +26,17 @@ struct HomeView: View {
     }
     .background(.background)
     .navigationTitle("Home")
-    .sheet(isPresented: $isPresentingManualTrip) {
-      ManualTripSheet()
-    }
   }
 
   private var statusCard: some View {
-    GlassCard {
+    GlassCard(
+      showGlow: autoModeManager.trackingHealth == .green,
+      depth: .surface
+    ) {
       VStack(alignment: .leading, spacing: DesignConstants.Spacing.sm) {
         Text("Status")
           .font(.headline)
-        
+
         HStack(alignment: .center, spacing: 8) {
           StatusChip(
             title: subscriptionManager.status.tier == .pro ? "Pro" : "Free",
@@ -55,8 +53,6 @@ struct HomeView: View {
           Button {
             if let onOpenInbox {
               onOpenInbox()
-            } else {
-              // Future: Wire to MainTabView selected tab binding to switch to Inbox.
             }
           } label: {
             InboxPill(count: tripStore.pendingTrips.count)
@@ -90,22 +86,15 @@ struct HomeView: View {
   }
 
   private var actionsCard: some View {
-    GlassCard {
+    GlassCard(depth: .surface) {
       VStack(alignment: .leading, spacing: DesignConstants.Spacing.sm) {
         Text("Quick Actions")
           .font(.headline)
-
-        PrimaryGlassButton(title: "Add Trip", systemImage: "plus") {
-          isPresentingManualTrip = true
-        }
-        .accessibilityHint("Opens manual trip entry.")
 
         if tripStore.pendingTrips.count > 0 {
           PrimaryGlassButton(title: "Review Inbox", systemImage: "tray") {
             if let onOpenInbox {
               onOpenInbox()
-            } else {
-              // Future: Wire to MainTabView selected tab binding to switch to Inbox.
             }
           }
           .accessibilityHint("Review and confirm pending auto-detected trips.")
@@ -126,13 +115,10 @@ struct HomeView: View {
   }
 
 
-
-
-
   // MARK: - Deduction Hero Card
 
   private var deductionHeroCard: some View {
-    GlassCard {
+    GlassCard(showGlow: yearDeductionAmount > 0, depth: .elevated) {
       VStack(alignment: .leading, spacing: 6) {
         HStack(alignment: .firstTextBaseline, spacing: 0) {
           Text(yearDeductionFormatted)
@@ -295,6 +281,8 @@ private struct TrackingHealthChip: View {
   let health: AutoModeManager.TrackingHealth
   var onTap: (() -> Void)?
 
+  @State private var isPulsing = false
+
   private var indicatorColor: Color {
     switch health {
     case .green: return .green
@@ -311,6 +299,14 @@ private struct TrackingHealthChip: View {
         Circle()
           .fill(indicatorColor)
           .frame(width: 8, height: 8)
+          .scaleEffect(isPulsing ? 1.15 : 1.0)
+          .opacity(isPulsing ? 0.7 : 1.0)
+          .animation(
+            health == .green
+              ? .easeInOut(duration: 1.4).repeatForever(autoreverses: true)
+              : .default,
+            value: isPulsing
+          )
           .accessibilityHidden(true)
         Text(health.title)
           .font(.caption.weight(.semibold))
@@ -334,6 +330,14 @@ private struct TrackingHealthChip: View {
     .accessibilityLabel("Tracking Status")
     .accessibilityValue(health.title)
     .accessibilityHint(health != .green ? "Opens Settings to fix tracking issues." : "")
+    .onAppear {
+      if health == .green {
+        isPulsing = true
+      }
+    }
+    .onChange(of: health) { _, newHealth in
+      isPulsing = newHealth == .green
+    }
   }
 }
 
@@ -349,4 +353,3 @@ private struct TrackingHealthChip: View {
   .environmentObject(AutoModeManager(tripStore: TripStore()))
   .environmentObject(MileageRatesStore())
 }
-

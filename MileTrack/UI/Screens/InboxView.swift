@@ -37,8 +37,9 @@ struct InboxView: View {
               subtitle: "Auto-detected trips appear here until you categorize and confirm them."
             )
           } else {
+            let pending = tripStore.pendingTrips
             VStack(spacing: 12) {
-              ForEach(tripStore.pendingTrips, id: \.id) { trip in
+              ForEach(Array(pending.enumerated()), id: \.element.id) { index, trip in
                 let isSelected = selectedTripIDs.contains(trip.id)
                 let offset = swipeOffsets[trip.id] ?? 0
 
@@ -48,41 +49,26 @@ struct InboxView: View {
                     swipeHintBackground(for: trip, offset: offset)
                   }
 
-                  ZStack(alignment: .topLeading) {
-                    TripInboxCard(
-                      trip: trip,
-                      selectedCategory: trip.category,
-                      onSelectCategory: { category in
-                        setCategory(tripID: trip.id, category: category)
-                      },
-                      onConfirm: {
-                        Haptics.success()
-                        confirm(tripID: trip.id)
-                        selectedTripIDs.remove(trip.id)
-                      },
-                      onIgnore: {
-                        Haptics.warning()
-                        ignore(tripID: trip.id)
-                        selectedTripIDs.remove(trip.id)
-                      },
-                      onEdit: {
-                        editingTrip = trip
-                      }
-                    )
-                    .allowsHitTesting(!isInMergeMode && offset == 0)
-                    .opacity(!isInMergeMode || isSelected ? 1.0 : 0.55)
-                    .overlay {
-                      if isSelected {
-                        RoundedRectangle(cornerRadius: DesignConstants.Radius.card, style: .continuous)
-                          .strokeBorder(Color.accentColor, lineWidth: 2)
-                      }
+                  TripInboxCard(
+                    trip: trip,
+                    selectedCategory: trip.category,
+                    onSelectCategory: { category in
+                      setCategory(tripID: trip.id, category: category)
+                    },
+                    onEdit: {
+                      editingTrip = trip
                     }
-                    .animation(.easeInOut(duration: 0.18), value: isSelected)
-                    .animation(.easeInOut(duration: 0.18), value: isInMergeMode)
-
-                    selectionCircle(for: trip.id)
-                      .padding(10)
+                  )
+                  .allowsHitTesting(!isInMergeMode && offset == 0)
+                  .opacity(!isInMergeMode || isSelected ? 1.0 : 0.55)
+                  .overlay {
+                    if isSelected {
+                      RoundedRectangle(cornerRadius: DesignConstants.Radius.card, style: .continuous)
+                        .strokeBorder(Color.accentColor, lineWidth: 2)
+                    }
                   }
+                  .animation(.easeInOut(duration: 0.18), value: isSelected)
+                  .animation(.easeInOut(duration: 0.18), value: isInMergeMode)
                   .offset(x: isInMergeMode ? 0 : offset)
                 }
                 .clipped()
@@ -96,6 +82,16 @@ struct InboxView: View {
                     } else {
                       selectedTripIDs.insert(trip.id)
                     }
+                  }
+                }
+
+                // Join connector between adjacent pending trip cards (hidden while merge bar is showing)
+                if index < pending.count - 1, !isInMergeMode {
+                  JoinConnectorView {
+                    withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
+                      selectedTripIDs = [trip.id, pending[index + 1].id]
+                    }
+                    Haptics.impact(.medium)
                   }
                 }
               }
@@ -273,12 +269,7 @@ struct InboxView: View {
   }
 
   private func routeLabel(_ trip: Trip) -> String {
-    let start = trip.startLabel?.trimmingCharacters(in: .whitespacesAndNewlines)
-    let end = trip.endLabel?.trimmingCharacters(in: .whitespacesAndNewlines)
-    if let start, !start.isEmpty, let end, !end.isEmpty { return "\(start) → \(end)" }
-    if let start, !start.isEmpty { return start }
-    if let end, !end.isEmpty { return end }
-    return "Trip"
+    trip.routeLabel
   }
 
   private func durationFormatted(_ seconds: Int) -> String {
@@ -347,37 +338,6 @@ struct InboxView: View {
     withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
       selectedTripIDs.removeAll()
     }
-  }
-
-  // MARK: - Selection Circle
-
-  @ViewBuilder
-  private func selectionCircle(for tripID: UUID) -> some View {
-    let isSelected = selectedTripIDs.contains(tripID)
-    Button {
-      withAnimation(.spring(response: 0.25, dampingFraction: 0.7)) {
-        if isSelected {
-          selectedTripIDs.remove(tripID)
-        } else {
-          selectedTripIDs.insert(tripID)
-        }
-      }
-      Haptics.impact(.light)
-    } label: {
-      Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
-        .font(.title3)
-        .foregroundStyle(
-          isSelected
-            ? Color.accentColor
-            : Color.primary.opacity(isInMergeMode ? 0.45 : 0.22)
-        )
-        .background(Circle().fill(.thinMaterial))
-        .shadow(color: .black.opacity(0.08), radius: 3, x: 0, y: 1)
-    }
-    .buttonStyle(.plain)
-    .animation(.spring(response: 0.25, dampingFraction: 0.7), value: isSelected)
-    .animation(.easeInOut(duration: 0.15), value: isInMergeMode)
-    .accessibilityLabel(isSelected ? "Deselect trip" : "Select trip to merge")
   }
 
   // MARK: - Merge Action Bar
@@ -572,6 +532,47 @@ struct InboxView: View {
           }
         }
       }
+  }
+}
+
+// MARK: - Join Connector
+
+private struct JoinConnectorView: View {
+  let action: () -> Void
+
+  var body: some View {
+    HStack(spacing: 6) {
+      dashedLine
+      Button(action: action) {
+        HStack(spacing: 4) {
+          Image(systemName: "arrow.triangle.merge")
+            .font(.caption2)
+          Text("Join")
+            .font(.caption.weight(.medium))
+        }
+        .foregroundStyle(.secondary)
+        .padding(.horizontal, 10)
+        .padding(.vertical, 5)
+        .background(.regularMaterial, in: Capsule())
+        .overlay(Capsule().strokeBorder(Color.primary.opacity(0.10), lineWidth: 1))
+      }
+      .buttonStyle(.plain)
+      dashedLine
+    }
+    .padding(.horizontal, 20)
+    .padding(.vertical, 2)
+  }
+
+  private var dashedLine: some View {
+    GeometryReader { geo in
+      Path { p in
+        p.move(to: CGPoint(x: 0, y: 0.5))
+        p.addLine(to: CGPoint(x: geo.size.width, y: 0.5))
+      }
+      .stroke(style: StrokeStyle(lineWidth: 1, dash: [4, 4]))
+      .foregroundStyle(Color.primary.opacity(0.18))
+    }
+    .frame(height: 1)
   }
 }
 

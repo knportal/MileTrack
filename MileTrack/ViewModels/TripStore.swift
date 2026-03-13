@@ -202,9 +202,19 @@ final class TripStore: ObservableObject {
   func merge(trips: [Trip]) -> Trip? {
     guard trips.count >= 2 else { return nil }
 
-    let sorted = trips.sorted { $0.date < $1.date }
+    // Stable sort: use UUID as tiebreaker to prevent non-deterministic ordering
+    // when two trips share the exact same timestamp.
+    let sorted = trips.sorted {
+      $0.date == $1.date ? $0.id.uuidString < $1.id.uuidString : $0.date < $1.date
+    }
     let earliest = sorted.first!
     let latest = sorted.last!
+
+    // Collect intermediate stops: the endLabel of every trip except the last.
+    let intermediateStops = sorted.dropLast()
+      .compactMap { $0.endLabel?.trimmingCharacters(in: .whitespacesAndNewlines) }
+      .filter { !$0.isEmpty }
+    let waypointsValue: [String]? = intermediateStops.isEmpty ? nil : intermediateStops
 
     let totalMiles = trips.reduce(0.0) { $0 + $1.distanceMiles }
     let totalDuration = trips.reduce(0) { $0 + ($1.durationSeconds ?? 0) }
@@ -243,7 +253,8 @@ final class TripStore: ObservableObject {
       projectCode: commonValue(trips.map(\.projectCode)),
       notes: notesParts.isEmpty ? nil : notesParts.joined(separator: " | "),
       purpose: commonValue(trips.map(\.purpose)),
-      vehicleID: sharedVehicle
+      vehicleID: sharedVehicle,
+      waypoints: waypointsValue
     )
 
     let sourceIDs = Set(trips.map(\.id))

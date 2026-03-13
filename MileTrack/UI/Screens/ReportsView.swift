@@ -67,6 +67,9 @@ struct ReportsView: View {
   @State private var selectedClient: String? = nil
   @State private var showFilters: Bool = false
 
+  // Charts animation
+  @State private var chartsVisible = false
+
   // Export
   @State private var shareItem: ShareItem?
   @State private var exportErrorMessage: String?
@@ -97,6 +100,17 @@ struct ReportsView: View {
     }
     .background(.background)
     .navigationTitle("Reports")
+    .onAppear {
+      withAnimation(.easeOut(duration: 0.55).delay(0.1)) {
+        chartsVisible = true
+      }
+    }
+    .onChange(of: selectedDateTab) { _, _ in
+      chartsVisible = false
+      withAnimation(.easeOut(duration: 0.55).delay(0.15)) {
+        chartsVisible = true
+      }
+    }
     .sheet(item: $shareItem) { item in
       ActivityShareSheet(items: [item.url])
     }
@@ -313,11 +327,12 @@ struct ReportsView: View {
           Chart(data) { point in
             BarMark(
               x: .value("Period", point.label),
-              y: .value("Miles", point.miles)
+              y: .value("Miles", chartsVisible ? point.miles : 0)
             )
             .foregroundStyle(Color.accentColor.gradient)
             .cornerRadius(3)
           }
+          .animation(.easeOut(duration: 0.55).delay(0.1), value: chartsVisible)
           .frame(height: 150)
           .chartYAxis {
             AxisMarks(position: .leading) { value in
@@ -369,7 +384,7 @@ struct ReportsView: View {
         GlassCard {
           Chart(data) { point in
             BarMark(
-              x: .value("Miles", point.miles),
+              x: .value("Miles", chartsVisible ? point.miles : 0),
               y: .value("Category", point.label)
             )
             .foregroundStyle(Color.accentColor.gradient)
@@ -381,6 +396,7 @@ struct ReportsView: View {
                 .fixedSize()
             }
           }
+          .animation(.easeOut(duration: 0.55).delay(0.1), value: chartsVisible)
           .frame(height: CGFloat(max(80, data.count * 36)))
           .chartXAxis(.hidden)
           .chartYAxis {
@@ -823,70 +839,8 @@ struct ReportsView: View {
               .foregroundStyle(.secondary)
           }
           
-          // Route Information
-          VStack(alignment: .leading, spacing: 6) {
-            // Start Location
-            HStack(alignment: .top, spacing: 6) {
-              Image(systemName: "location.circle.fill")
-                .font(.caption)
-                .foregroundStyle(.green)
-                .frame(width: 16)
-              
-              VStack(alignment: .leading, spacing: 2) {
-                Text("Start")
-                  .font(.caption2.weight(.medium))
-                  .foregroundStyle(.tertiary)
-                  .textCase(.uppercase)
-                
-                if let startLabel = trip.startLabel, !startLabel.isEmpty {
-                  Text(startLabel)
-                    .font(.caption.weight(.semibold))
-                    .foregroundStyle(.primary)
-                }
-                if let startAddress = trip.startAddress, !startAddress.isEmpty {
-                  Text(startAddress)
-                    .font(.caption2)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(2)
-                } else if trip.startLabel == nil || trip.startLabel?.isEmpty == true {
-                  Text("Unknown start location")
-                    .font(.caption2)
-                    .foregroundStyle(.tertiary)
-                }
-              }
-            }
-            
-            // End Location
-            HStack(alignment: .top, spacing: 6) {
-              Image(systemName: "location.circle.fill")
-                .font(.caption)
-                .foregroundStyle(.red)
-                .frame(width: 16)
-              
-              VStack(alignment: .leading, spacing: 2) {
-                Text("End")
-                  .font(.caption2.weight(.medium))
-                  .foregroundStyle(.tertiary)
-                  .textCase(.uppercase)
-                
-                if let endLabel = trip.endLabel, !endLabel.isEmpty {
-                  Text(endLabel)
-                    .font(.caption.weight(.semibold))
-                    .foregroundStyle(.primary)
-                }
-                if let endAddress = trip.endAddress, !endAddress.isEmpty {
-                  Text(endAddress)
-                    .font(.caption2)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(2)
-                } else if trip.endLabel == nil || trip.endLabel?.isEmpty == true {
-                  Text("Unknown end location")
-                    .font(.caption2)
-                    .foregroundStyle(.tertiary)
-                }
-              }
-            }
-          }
+          // Route — addresses when available, label chain as fallback
+          tripRouteView(trip)
           
           // Expense Calculation
           if let calculation = expenseCalculator.calculateExpense(
@@ -984,7 +938,7 @@ struct ReportsView: View {
       }
     }
     .buttonStyle(.plain)
-    .accessibilityLabel("Trip on \(trip.date.formatted(date: .long, time: .omitted)), from \(trip.startLabel ?? "unknown") to \(trip.endLabel ?? "unknown"), \(milesFormatted(trip.distanceMiles))")
+    .accessibilityLabel("Trip on \(trip.date.formatted(date: .long, time: .omitted)), \(trip.routeLabel), \(milesFormatted(trip.distanceMiles))")
     .accessibilityHint("Tap to edit trip details.")
   }
 
@@ -1003,12 +957,52 @@ struct ReportsView: View {
   }
 
   private func routeLabel(_ trip: Trip) -> String {
-    let start = trip.startLabel?.trimmingCharacters(in: .whitespacesAndNewlines)
-    let end = trip.endLabel?.trimmingCharacters(in: .whitespacesAndNewlines)
-    if let start, !start.isEmpty, let end, !end.isEmpty { return "\(start) → \(end)" }
-    if let start, !start.isEmpty { return start }
-    if let end, !end.isEmpty { return end }
-    return "Trip"
+    trip.routeLabel
+  }
+
+  /// Two-line address view with colored dots, or single-line label route as fallback.
+  @ViewBuilder
+  private func tripRouteView(_ trip: Trip) -> some View {
+    let startAddr = trip.startAddress?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+    let endAddr   = trip.endAddress?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+
+    if !startAddr.isEmpty && !endAddr.isEmpty {
+      VStack(alignment: .leading, spacing: 4) {
+        tripLocationLine(startAddr, isStart: true)
+        if let stops = trip.waypoints?.filter({ !$0.isEmpty }), !stops.isEmpty {
+          ForEach(stops, id: \.self) { stop in
+            HStack(alignment: .top, spacing: 8) {
+              Circle()
+                .fill(Color.secondary.opacity(0.35))
+                .frame(width: 6, height: 6)
+                .padding(.top, 4)
+                .padding(.leading, 1)
+              Text(stop)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .lineLimit(1)
+            }
+          }
+        }
+        tripLocationLine(endAddr, isStart: false)
+      }
+    } else {
+      Text(trip.routeLabel)
+        .font(.subheadline.weight(.semibold))
+        .lineLimit(2)
+    }
+  }
+
+  private func tripLocationLine(_ text: String, isStart: Bool) -> some View {
+    HStack(alignment: .top, spacing: 8) {
+      Circle()
+        .fill(isStart ? Color.green : Color.red)
+        .frame(width: 7, height: 7)
+        .padding(.top, 4)
+      Text(text)
+        .font(.subheadline.weight(.medium))
+        .lineLimit(2)
+    }
   }
   
   private func formatCurrency(_ amount: Decimal) -> String {
