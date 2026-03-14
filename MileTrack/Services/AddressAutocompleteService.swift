@@ -43,14 +43,29 @@ final class AddressAutocompleteService: NSObject, ObservableObject {
     isSearching = false
   }
 
+  /// Result containing address text and optional coordinates.
+  struct AddressLookupResult {
+    let address: String
+    let latitude: Double?
+    let longitude: Double?
+  }
+
   func getFullAddress(for completion: MKLocalSearchCompletion) async -> String? {
+    let result = await getAddressWithCoordinates(for: completion)
+    return result?.address
+  }
+
+  /// Resolve a search completion to full address text plus coordinates.
+  func getAddressWithCoordinates(for completion: MKLocalSearchCompletion) async -> AddressLookupResult? {
     let request = MKLocalSearch.Request(completion: completion)
     let search = MKLocalSearch(request: request)
 
     do {
       let response = try await search.start()
       if let mapItem = response.mapItems.first {
-        return formatAddress(from: mapItem)
+        let addr = formatAddress(from: mapItem)
+        let coord = mapItem.placemark.location?.coordinate
+        return AddressLookupResult(address: addr, latitude: coord?.latitude, longitude: coord?.longitude)
       }
     } catch {
       // Fall back to completion title + subtitle
@@ -59,10 +74,8 @@ final class AddressAutocompleteService: NSObject, ObservableObject {
     // Fallback: combine title and subtitle
     let title = completion.title
     let subtitle = completion.subtitle
-    if subtitle.isEmpty {
-      return title
-    }
-    return "\(title), \(subtitle)"
+    let fallback = subtitle.isEmpty ? title : "\(title), \(subtitle)"
+    return AddressLookupResult(address: fallback, latitude: nil, longitude: nil)
   }
 
   private func formatAddress(from mapItem: MKMapItem) -> String {

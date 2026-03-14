@@ -104,6 +104,7 @@ final class AutoModeManager: ObservableObject {
 
   private let tripStore: TripStore
   private let rulesStore: RulesStore?
+  private let locationsStore: LocationsStore?
   private let drivingDetection: DrivingDetectionService
   private let locationTracking: LocationTrackingService
   private let rulesEngine = RulesEngine()
@@ -120,11 +121,13 @@ final class AutoModeManager: ObservableObject {
   init(
     tripStore: TripStore,
     rulesStore: RulesStore? = nil,
+    locationsStore: LocationsStore? = nil,
     drivingDetection: DrivingDetectionService? = nil,
     locationTracking: LocationTrackingService? = nil
   ) {
     self.tripStore = tripStore
     self.rulesStore = rulesStore
+    self.locationsStore = locationsStore
     // Avoid evaluating potentially `@MainActor` default arguments at the call site.
     let drivingDetectionService = drivingDetection ?? DrivingDetectionService()
     let locationTrackingService = locationTracking ?? LocationTrackingService()
@@ -395,18 +398,27 @@ final class AutoModeManager: ObservableObject {
 
     if let lat = state.startLatitude, let lon = state.startLongitude {
       let startLoc = CLLocation(latitude: lat, longitude: lon)
-      let task = Task { [weak self] in
-        guard let self else { return }
-        let result = await self.geocoder.addresses(for: startLoc)
-        guard let result else { return }
-        await MainActor.run {
-          if let idx = self.tripStore.trips.firstIndex(where: { $0.id == trip.id }) {
-            self.tripStore.trips[idx].startLabel = result.shortLabel
-            self.tripStore.trips[idx].startAddress = result.fullAddress
+      if let match = locationsStore?.nearest(to: startLoc) {
+        if let idx = tripStore.trips.firstIndex(where: { $0.id == trip.id }) {
+          tripStore.trips[idx].startLabel = match.location.name
+          if !match.location.address.isEmpty {
+            tripStore.trips[idx].startAddress = match.location.address
           }
         }
+      } else {
+        let task = Task { [weak self] in
+          guard let self else { return }
+          let result = await self.geocoder.addresses(for: startLoc)
+          guard let result else { return }
+          await MainActor.run {
+            if let idx = self.tripStore.trips.firstIndex(where: { $0.id == trip.id }) {
+              self.tripStore.trips[idx].startLabel = result.shortLabel
+              self.tripStore.trips[idx].startAddress = result.fullAddress
+            }
+          }
+        }
+        geocodeTasks.append(task)
       }
-      geocodeTasks.append(task)
     }
   }
 
@@ -479,35 +491,63 @@ final class AutoModeManager: ObservableObject {
 #endif
     let milesText = String(format: "%.2f", miles)
     logger.log("tracking", "trip created id=\(trip.id.uuidString) miles=\(milesText) duration=\(Int(duration))s")
-    // Reverse geocode without blocking UI. Update the inserted trip in place when labels resolve.
+    // Resolve labels: snap to saved locations first, then fall back to reverse geocoding.
     if let startLoc {
-      let task = Task { [weak self] in
-        guard let self else { return }
-        let result = await self.geocoder.addresses(for: startLoc)
-        guard let result else { return }
-        await MainActor.run {
-          if let idx = self.tripStore.trips.firstIndex(where: { $0.id == trip.id }) {
-            self.tripStore.trips[idx].startLabel = result.shortLabel
-            self.tripStore.trips[idx].startAddress = result.fullAddress
+      if let match = locationsStore?.nearest(to: startLoc) {
+        // Snap to saved location (e.g. "Home")
+        if let idx = tripStore.trips.firstIndex(where: { $0.id == trip.id }) {
+          tripStore.trips[idx].startLabel = match.location.name
+          if !match.location.address.isEmpty {
+            tripStore.trips[idx].startAddress = match.location.address
           }
         }
+#if DEBUG
+        print("[AutoMode] start snapped to saved location \"\(match.location.name)\" (\(Int(match.distance))m away)")
+#endif
+        logger.log("tracking", "start snapped to \"\(match.location.name)\" (\(Int(match.distance))m)")
+      } else {
+        let task = Task { [weak self] in
+          guard let self else { return }
+          let result = await self.geocoder.addresses(for: startLoc)
+          guard let result else { return }
+          await MainActor.run {
+            if let idx = self.tripStore.trips.firstIndex(where: { $0.id == trip.id }) {
+              self.tripStore.trips[idx].startLabel = result.shortLabel
+              self.tripStore.trips[idx].startAddress = result.fullAddress
+            }
+          }
+        }
+        geocodeTasks.append(task)
       }
-      geocodeTasks.append(task)
     }
     let endLoc = endLocation ?? result.endLocation
     if let endLoc {
-      let task = Task { [weak self] in
-        guard let self else { return }
-        let result = await self.geocoder.addresses(for: endLoc)
-        guard let result else { return }
-        await MainActor.run {
-          if let idx = self.tripStore.trips.firstIndex(where: { $0.id == trip.id }) {
-            self.tripStore.trips[idx].endLabel = result.shortLabel
-            self.tripStore.trips[idx].endAddress = result.fullAddress
+      if let match = locationsStore?.nearest(to: endLoc) {
+        // Snap to saved location
+        if let idx = tripStore.trips.firstIndex(where: { $0.id == trip.id }) {
+          tripStore.trips[idx].endLabel = match.location.name
+          if !match.location.address.isEmpty {
+            tripStore.trips[idx].endAddress = match.location.address
           }
         }
+#if DEBUG
+        print("[AutoMode] end snapped to saved location \"\(match.location.name)\" (\(Int(match.distance))m away)")
+#endif
+        logger.log("tracking", "end snapped to \"\(match.location.name)\" (\(Int(match.distance))m)")
+      } else {
+        let task = Task { [weak self] in
+          guard let self else { return }
+          let result = await self.geocoder.addresses(for: endLoc)
+          guard let result else { return }
+          await MainActor.run {
+            if let idx = self.tripStore.trips.firstIndex(where: { $0.id == trip.id }) {
+              self.tripStore.trips[idx].endLabel = result.shortLabel
+              self.tripStore.trips[idx].endAddress = result.fullAddress
+            }
+          }
+        }
+        geocodeTasks.append(task)
       }
-      geocodeTasks.append(task)
     }
     status.lastEvent = "Drive captured → Inbox"
     status.distanceMeters = 0

@@ -25,11 +25,12 @@ struct ContentView: View {
     _subscriptionManager = StateObject(wrappedValue: SubscriptionManager())
     _categoriesStore = StateObject(wrappedValue: CategoriesStore())
     _clientStore = StateObject(wrappedValue: ClientsStore())
-    _locationsStore = StateObject(wrappedValue: LocationsStore())
+    let locationsStore = LocationsStore()
+    _locationsStore = StateObject(wrappedValue: locationsStore)
     _vehiclesStore = StateObject(wrappedValue: VehiclesStore())
     let rulesStore = RulesStore()
     _rulesStore = StateObject(wrappedValue: rulesStore)
-    _autoModeManager = StateObject(wrappedValue: AutoModeManager(tripStore: tripStore, rulesStore: rulesStore))
+    _autoModeManager = StateObject(wrappedValue: AutoModeManager(tripStore: tripStore, rulesStore: rulesStore, locationsStore: locationsStore))
     
     // Initialize expense stores
     _mileageRatesStore = StateObject(wrappedValue: MileageRatesStore())

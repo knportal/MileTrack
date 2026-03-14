@@ -5,6 +5,7 @@ struct AddressAutocompleteField: View {
   let placeholder: String
   @Binding var text: String
   let accessibilityLabel: String
+  var onCoordinatesResolved: ((_ latitude: Double, _ longitude: Double) -> Void)?
 
   @StateObject private var autocomplete = AddressAutocompleteService()
   @FocusState private var isFocused: Bool
@@ -102,8 +103,11 @@ struct AddressAutocompleteField: View {
 
   private func selectSuggestion(_ suggestion: MKLocalSearchCompletion) {
     Task {
-      if let fullAddress = await autocomplete.getFullAddress(for: suggestion) {
-        text = fullAddress
+      if let result = await autocomplete.getAddressWithCoordinates(for: suggestion) {
+        text = result.address
+        if let lat = result.latitude, let lon = result.longitude {
+          onCoordinatesResolved?(lat, lon)
+        }
       } else {
         // Fallback to title + subtitle
         if suggestion.subtitle.isEmpty {

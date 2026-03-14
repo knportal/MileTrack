@@ -1,4 +1,5 @@
 import Combine
+import CoreLocation
 import Foundation
 
 @MainActor
@@ -38,11 +39,11 @@ final class LocationsStore: ObservableObject {
       .store(in: &cancellables)
   }
 
-  func add(name: String, address: String) -> Bool {
+  func add(name: String, address: String, latitude: Double? = nil, longitude: Double? = nil) -> Bool {
     let trimmedName = name.trimmingCharacters(in: .whitespacesAndNewlines)
     guard !trimmedName.isEmpty else { return false }
     guard !containsNameCaseInsensitive(trimmedName) else { return false }
-    let location = NamedLocation(name: trimmedName, address: address.trimmingCharacters(in: .whitespacesAndNewlines))
+    let location = NamedLocation(name: trimmedName, address: address.trimmingCharacters(in: .whitespacesAndNewlines), latitude: latitude, longitude: longitude)
     locations.append(location)
     return true
   }
@@ -88,6 +89,21 @@ final class LocationsStore: ObservableObject {
     } catch {
       lastSaveError = "Failed to save locations: \(error.localizedDescription)"
     }
+  }
+
+  /// Find the nearest saved location within a given radius (meters).
+  /// Returns the location and distance, or nil if nothing is close enough.
+  func nearest(to location: CLLocation, withinMeters radius: Double = 150) -> (location: NamedLocation, distance: Double)? {
+    var best: (location: NamedLocation, distance: Double)?
+    for saved in locations {
+      guard let dist = saved.distance(from: location) else { continue }
+      if dist <= radius {
+        if best == nil || dist < best!.distance {
+          best = (saved, dist)
+        }
+      }
+    }
+    return best
   }
 
   private func containsNameCaseInsensitive(_ name: String) -> Bool {

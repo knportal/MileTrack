@@ -6,10 +6,14 @@ struct ManageLocationsView: View {
   @State private var isPresentingAdd: Bool = false
   @State private var addName: String = ""
   @State private var addAddress: String = ""
+  @State private var addLatitude: Double?
+  @State private var addLongitude: Double?
 
   @State private var editingLocation: NamedLocation?
   @State private var editName: String = ""
   @State private var editAddress: String = ""
+  @State private var editLatitude: Double?
+  @State private var editLongitude: Double?
 
   @State private var deletingLocation: NamedLocation?
 
@@ -142,6 +146,8 @@ struct ManageLocationsView: View {
         editingLocation = location
         editName = location.name
         editAddress = location.address
+        editLatitude = location.latitude
+        editLongitude = location.longitude
       } label: {
         Image(systemName: "pencil")
           .font(.footnote.weight(.semibold))
@@ -205,11 +211,21 @@ struct ManageLocationsView: View {
                 AddressAutocompleteField(
                   placeholder: "e.g. 123 Main Street",
                   text: $addAddress,
-                  accessibilityLabel: "Location address"
+                  accessibilityLabel: "Location address",
+                  onCoordinatesResolved: { lat, lon in
+                    addLatitude = lat
+                    addLongitude = lon
+                  }
                 )
-                Text("The address text used to match trips in rules.")
-                  .font(.caption2)
-                  .foregroundStyle(.tertiary)
+                if addLatitude != nil {
+                  Label("Coordinates captured", systemImage: "checkmark.circle.fill")
+                    .font(.caption2)
+                    .foregroundStyle(.green)
+                } else {
+                  Text("Select an address from suggestions to enable location snapping.")
+                    .font(.caption2)
+                    .foregroundStyle(.tertiary)
+                }
               }
             }
           }
@@ -265,11 +281,21 @@ struct ManageLocationsView: View {
                 AddressAutocompleteField(
                   placeholder: "e.g. 123 Main Street",
                   text: $editAddress,
-                  accessibilityLabel: "Location address"
+                  accessibilityLabel: "Location address",
+                  onCoordinatesResolved: { lat, lon in
+                    editLatitude = lat
+                    editLongitude = lon
+                  }
                 )
-                Text("The address text used to match trips in rules.")
-                  .font(.caption2)
-                  .foregroundStyle(.tertiary)
+                if editLatitude != nil {
+                  Label("Coordinates captured", systemImage: "checkmark.circle.fill")
+                    .font(.caption2)
+                    .foregroundStyle(.green)
+                } else {
+                  Text("Select an address from suggestions to enable location snapping.")
+                    .font(.caption2)
+                    .foregroundStyle(.tertiary)
+                }
               }
             }
           }
@@ -299,8 +325,10 @@ struct ManageLocationsView: View {
       message = "Please enter a location name."
       return
     }
-    if locationsStore.add(name: trimmedName, address: addAddress) {
+    if locationsStore.add(name: trimmedName, address: addAddress, latitude: addLatitude, longitude: addLongitude) {
       message = nil
+      addLatitude = nil
+      addLongitude = nil
       isPresentingAdd = false
     } else {
       message = "A location with that name already exists."
@@ -311,10 +339,14 @@ struct ManageLocationsView: View {
     let updated = NamedLocation(
       id: original.id,
       name: editName,
-      address: editAddress
+      address: editAddress,
+      latitude: editLatitude ?? original.latitude,
+      longitude: editLongitude ?? original.longitude
     )
     if locationsStore.update(updated) {
       message = nil
+      editLatitude = nil
+      editLongitude = nil
       editingLocation = nil
     } else {
       message = "Could not save. Name may be empty or duplicate."
