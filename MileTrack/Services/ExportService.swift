@@ -79,14 +79,27 @@ final class ExportService {
     }
   }
 
-  func makeCSV(trips: [Trip]) -> String {
+  func makeCSV(
+    trips: [Trip],
+    vehicles: [NamedVehicle] = [],
+    rates: [MileageRate] = [],
+    receipts: [TripReceipt] = []
+  ) -> String {
     let header = [
       "date",
       "category",
+      "start",
+      "startAddress",
+      "end",
+      "endAddress",
       "miles",
-      "source",
-      "startLabel",
-      "endLabel",
+      "mileageRate",
+      "mileageCost",
+      "receipts",
+      "receiptTotal",
+      "totalCost",
+      "purpose",
+      "vehicle",
       "client",
       "project",
       "notes",
@@ -110,14 +123,39 @@ final class ExportService {
       return escapeCSV(text)
     }
 
+    func vehicleName(_ id: UUID?) -> String? {
+      guard let id else { return nil }
+      return vehicles.first(where: { $0.id == id })?.name
+    }
+
+    let calculator = ExpenseCalculator()
+    
     let lines: [String] = trips.map { trip in
-      [
+      let calculation = calculator.calculateExpense(for: trip, rates: rates, receipts: receipts)
+      let tripReceipts = receipts.filter { $0.tripId == trip.id }
+      
+      // Format receipts as comma-separated list
+      let receiptsList = tripReceipts.map { receipt in
+        let type = receipt.type.displayName
+        let amount = receipt.amount.map { formatDecimal($0) } ?? ""
+        return "\(type): \(amount)"
+      }.joined(separator: "; ")
+      
+      return [
         escapeCSV(df.string(from: trip.date)),
         field(trip.category),
-        milesField(trip.distanceMiles),
-        escapeCSV(trip.source.rawValue),
         field(trip.startLabel),
+        field(trip.startAddress),
         field(trip.endLabel),
+        field(trip.endAddress),
+        milesField(trip.distanceMiles),
+        field(calculation.map { formatDecimal($0.mileageRate) }),
+        field(calculation.map { formatDecimal($0.mileageAmount) }),
+        field(receiptsList.isEmpty ? nil : receiptsList),
+        field(calculation.map { formatDecimal($0.receiptsAmount) }),
+        field(calculation.map { formatDecimal($0.totalAmount) }),
+        field(trip.purpose),
+        field(vehicleName(trip.vehicleID)),
         field(trip.clientOrOrg),
         field(trip.projectCode),
         field(trip.notes),
@@ -132,6 +170,17 @@ final class ExportService {
     let url = FileManager.default.temporaryDirectory.appendingPathComponent(sanitized).appendingPathExtension("csv")
     try csv.data(using: .utf8)?.write(to: url, options: [.atomic])
     return url
+  }
+
+  // MARK: - Formatting Helpers
+  
+  private func formatDecimal(_ value: Decimal) -> String {
+    let formatter = NumberFormatter()
+    formatter.locale = Locale(identifier: "en_US_POSIX")
+    formatter.numberStyle = .decimal
+    formatter.minimumFractionDigits = 2
+    formatter.maximumFractionDigits = 2
+    return formatter.string(from: value as NSNumber) ?? "\(value)"
   }
 
   // MARK: - CSV escaping

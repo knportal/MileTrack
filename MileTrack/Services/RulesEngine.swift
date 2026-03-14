@@ -28,10 +28,23 @@ struct RulesEngine {
       guard window.contains(date: trip.date, calendar: calendar) else { return false }
     }
 
+    // Legacy: containsText matches either start or end
     if let containsText = normalized(criteria.containsText) {
       let start = normalized(trip.startLabel) ?? ""
       let end = normalized(trip.endLabel) ?? ""
       guard start.contains(containsText) || end.contains(containsText) else { return false }
+    }
+    
+    // New: startContains matches only start address
+    if let startContains = normalized(criteria.startContains) {
+      let start = normalized(trip.startLabel) ?? ""
+      guard start.contains(startContains) else { return false }
+    }
+    
+    // New: endContains matches only end address
+    if let endContains = normalized(criteria.endContains) {
+      let end = normalized(trip.endLabel) ?? ""
+      guard end.contains(endContains) else { return false }
     }
 
     if let clientContains = normalized(criteria.clientContains) {

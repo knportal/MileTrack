@@ -40,7 +40,7 @@ struct CategoryChip: View {
   }
 
   private var foregroundStyle: some ShapeStyle {
-    isSelected ? AnyShapeStyle(Color.primary) : AnyShapeStyle(Color.primary)
+    isSelected ? AnyShapeStyle(Color.accentColor) : AnyShapeStyle(Color.primary)
   }
 }
 

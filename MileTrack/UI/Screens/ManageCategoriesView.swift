@@ -43,17 +43,17 @@ struct ManageCategoriesView: View {
       }
     }
     .alert("Add Category", isPresented: $isPresentingAdd) {
-      TextField("Category name", text: $addName)
+      TextField("Category name", text: $addName.max(DesignConstants.TextLimits.shortName))
       Button("Add") { addCategory() }
       Button("Cancel", role: .cancel) {}
     } message: {
-      Text("Names can’t be empty or duplicates.")
+      Text("Names can't be empty or duplicates.")
     }
     .alert("Rename Category", isPresented: Binding(
       get: { renamingCategory != nil },
       set: { if !$0 { renamingCategory = nil } }
     )) {
-      TextField("New name", text: $renameName)
+      TextField("New name", text: $renameName.max(DesignConstants.TextLimits.shortName))
       Button("Save") { renameCategory() }
       Button("Cancel", role: .cancel) { renamingCategory = nil }
     } message: {

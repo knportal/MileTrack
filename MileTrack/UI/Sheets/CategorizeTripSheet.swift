@@ -32,7 +32,6 @@ struct CategorizeTripSheet: View {
           headerCard
           categoryCard
           optionalDetailsCard
-          actionsCard
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
@@ -43,6 +42,13 @@ struct CategorizeTripSheet: View {
       .toolbar {
         ToolbarItem(placement: .cancellationAction) {
           Button("Cancel") { dismiss() }
+        }
+        ToolbarItem(placement: .confirmationAction) {
+          Button("Save") {
+            Haptics.success()
+            confirm()
+          }
+          .disabled(!canConfirm)
         }
       }
     }
@@ -392,44 +398,6 @@ struct CategorizeTripSheet: View {
     }
   }
 
-  private var actionsCard: some View {
-    GlassCard {
-      VStack(alignment: .leading, spacing: 10) {
-        Text("Actions")
-          .font(.headline)
-
-        PrimaryGlassButton(title: "Confirm", systemImage: "checkmark", isEnabled: canConfirm) {
-          Haptics.success()
-          confirm()
-        }
-        .accessibilityHint(canConfirm ? "Confirms this trip." : "Select a category to confirm.")
-
-        Button(role: .destructive) {
-          Haptics.warning()
-          ignore()
-        } label: {
-          HStack {
-            Image(systemName: "xmark.circle")
-              .accessibilityHidden(true)
-            Text("Not a trip")
-              .font(.subheadline.weight(.semibold))
-            Spacer()
-          }
-          .padding(.horizontal, 16)
-          .padding(.vertical, 12)
-          .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
-          .overlay {
-            RoundedRectangle(cornerRadius: 16, style: .continuous)
-              .strokeBorder(Color.primary.opacity(0.10), lineWidth: 1)
-          }
-        }
-        .buttonStyle(.plain)
-        .accessibilityLabel("Not a trip")
-        .accessibilityHint("Ignores this auto-detected item.")
-      }
-    }
-  }
-
   private var canConfirm: Bool {
     resolvedCategory != nil && tripIndex != nil
   }
@@ -483,12 +451,6 @@ struct CategorizeTripSheet: View {
     tripStore.trips[idx].notes = trimmedNotes.isEmpty ? nil : trimmedNotes
     tripStore.trips[idx].state = .confirmed
 
-    dismiss()
-  }
-
-  private func ignore() {
-    guard let idx = tripIndex else { return }
-    tripStore.trips[idx].state = .ignored
     dismiss()
   }
 

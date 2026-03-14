@@ -4,6 +4,8 @@ import UIKit
 #if DEBUG
 
 struct DiagnosticsView: View {
+  @EnvironmentObject private var autoModeManager: AutoModeManager
+  
   private let logger = DiagnosticsLogger.shared
 
   @State private var tailText: String = ""
@@ -13,6 +15,7 @@ struct DiagnosticsView: View {
   var body: some View {
     ScrollView {
       VStack(alignment: .leading, spacing: 14) {
+        testDataCard
         actionsCard
         logPreviewCard
       }
@@ -36,6 +39,37 @@ struct DiagnosticsView: View {
       }
     } message: {
       Text("This can’t be undone.")
+    }
+  }
+
+  private var testDataCard: some View {
+    GlassCard {
+      VStack(alignment: .leading, spacing: 12) {
+        Text("Test Data")
+          .font(.headline)
+
+        Text("Add simulated trips for testing without actually driving.")
+          .font(.footnote)
+          .foregroundStyle(.secondary)
+
+        PrimaryGlassButton(title: "Simulate Short Drive", systemImage: "car") {
+          autoModeManager.debugSimulateDrive(distanceMiles: 3.2, durationSeconds: 7 * 60)
+          Haptics.success()
+        }
+        .accessibilityHint("Adds a 3.2 mile, 7 minute simulated trip.")
+
+        PrimaryGlassButton(title: "Simulate Medium Drive", systemImage: "car") {
+          autoModeManager.debugSimulateDrive(distanceMiles: 12.5, durationSeconds: 25 * 60)
+          Haptics.success()
+        }
+        .accessibilityHint("Adds a 12.5 mile, 25 minute simulated trip.")
+
+        PrimaryGlassButton(title: "Simulate Long Drive", systemImage: "car") {
+          autoModeManager.debugSimulateDrive(distanceMiles: 45.0, durationSeconds: 60 * 60)
+          Haptics.success()
+        }
+        .accessibilityHint("Adds a 45 mile, 1 hour simulated trip.")
+      }
     }
   }
 
@@ -143,6 +177,7 @@ private struct ActivityShareSheet: UIViewControllerRepresentable {
 #Preview {
   NavigationStack {
     DiagnosticsView()
+      .environmentObject(AutoModeManager(tripStore: TripStore()))
   }
 }
 

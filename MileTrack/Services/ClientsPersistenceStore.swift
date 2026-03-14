@@ -46,7 +46,8 @@ final class ClientsPersistenceStore {
   }
 
   private static func applicationSupportDirectory(fileManager: FileManager) -> URL {
-    let base = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
+    let base = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
+      ?? URL(fileURLWithPath: NSHomeDirectory()).appendingPathComponent("Library/Application Support")
     let bundleID = Bundle.main.bundleIdentifier ?? "MileTrack"
     return base.appendingPathComponent(bundleID, isDirectory: true)
   }

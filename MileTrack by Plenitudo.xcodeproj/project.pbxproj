@@ -208,7 +208,7 @@
 					};
 				};
 			};
-			buildConfigurationList = B90C24C22F31052E008EA030 /* Build configuration list for PBXProject "MileTrack by Plenitudo" */;
+			buildConfigurationList = B90C24C22F31052E008EA030 /* Build configuration list for PBXProject "MileTrack" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -429,7 +429,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = MileTrack/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "MileTrack by Plenitudo";
+				INFOPLIST_KEY_CFBundleDisplayName = "MileTrack";
 				INFOPLIST_KEY_LSApplicationCategoryType = "";
 				INFOPLIST_KEY_NSFileProviderDomainUsageDescription = "MileTrack by Plenitudo needs to access files to export trip reports and receipts.";
 				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "MileTrack by Plenitudo needs background location access to automatically detect and track your trips even when the app is closed. This enables Auto Mode to work seamlessly without requiring the app to be open.";
@@ -471,7 +471,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = MileTrack/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "MileTrack by Plenitudo";
+				INFOPLIST_KEY_CFBundleDisplayName = "MileTrack";
 				INFOPLIST_KEY_LSApplicationCategoryType = "";
 				INFOPLIST_KEY_NSFileProviderDomainUsageDescription = "MileTrack by Plenitudo needs to access files to export trip reports and receipts.";
 				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "MileTrack by Plenitudo needs background location access to automatically detect and track your trips even when the app is closed. This enables Auto Mode to work seamlessly without requiring the app to be open.";
@@ -588,7 +588,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		B90C24C22F31052E008EA030 /* Build configuration list for PBXProject "MileTrack by Plenitudo" */ = {
+		B90C24C22F31052E008EA030 /* Build configuration list for PBXProject "MileTrack" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				B90C24E82F31052F008EA030 /* Debug */,

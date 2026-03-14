@@ -16,6 +16,7 @@ struct ContentView: View {
   @StateObject private var mileageRatesStore: MileageRatesStore
   @StateObject private var receiptsStore: ReceiptsStore
   
+  @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
   @State private var hasRetriedGeocoding = false
 
   init() {
@@ -55,6 +56,12 @@ struct ContentView: View {
       .environmentObject(autoModeManager)
       .environmentObject(mileageRatesStore)
       .environmentObject(receiptsStore)
+      .fullScreenCover(isPresented: Binding(
+        get: { !hasCompletedOnboarding },
+        set: { _ in }
+      )) {
+        OnboardingView()
+      }
       .onChange(of: scenePhase) { _, newPhase in
         if newPhase == .background {
           // Flush all pending saves immediately before app suspends

@@ -18,7 +18,7 @@
                BlueprintIdentifier = "B90C24C62F31052E008EA030"
                BuildableName = "MileTrack.app"
                BlueprintName = "MileTrack"
-               ReferencedContainer = "container:MileTrack.xcodeproj">
+               ReferencedContainer = "container:MileTrack by Plenitudo.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -38,7 +38,7 @@
                BlueprintIdentifier = "B90C24D52F31052F008EA030"
                BuildableName = "MileTrackTests.xctest"
                BlueprintName = "MileTrackTests"
-               ReferencedContainer = "container:MileTrack.xcodeproj">
+               ReferencedContainer = "container:MileTrack by Plenitudo.xcodeproj">
             </BuildableReference>
          </TestableReference>
          <TestableReference
@@ -49,7 +49,7 @@
                BlueprintIdentifier = "B90C24DF2F31052F008EA030"
                BuildableName = "MileTrackUITests.xctest"
                BlueprintName = "MileTrackUITests"
-               ReferencedContainer = "container:MileTrack.xcodeproj">
+               ReferencedContainer = "container:MileTrack by Plenitudo.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -71,7 +71,7 @@
             BlueprintIdentifier = "B90C24C62F31052E008EA030"
             BuildableName = "MileTrack.app"
             BlueprintName = "MileTrack"
-            ReferencedContainer = "container:MileTrack.xcodeproj">
+            ReferencedContainer = "container:MileTrack by Plenitudo.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
       <StoreKitConfigurationFileReference
@@ -91,7 +91,7 @@
             BlueprintIdentifier = "B90C24C62F31052E008EA030"
             BuildableName = "MileTrack.app"
             BlueprintName = "MileTrack"
-            ReferencedContainer = "container:MileTrack.xcodeproj">
+            ReferencedContainer = "container:MileTrack by Plenitudo.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

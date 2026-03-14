@@ -47,13 +47,62 @@ struct SettingsView: View {
           
           Divider().padding(.leading, 50)
           
+          Divider().padding(.leading, 50)
+
           settingsRow(
-            title: "Units & Display", 
+            title: "Units & Display",
             icon: "ruler",
             destination: { UnitsSettingsView() }
           )
+
+          Divider().padding(.leading, 50)
+
+          iCloudSyncRow
         }
       }
+    }
+  }
+
+  private var iCloudSyncRow: some View {
+    let sync = tripStore.iCloudSync
+    return HStack(spacing: 16) {
+      Image(systemName: sync.status.systemImage)
+        .font(.title3)
+        .foregroundStyle(sync.status.isError ? .red : .secondary)
+        .frame(width: 24, alignment: .center)
+
+      VStack(alignment: .leading, spacing: 2) {
+        Text("iCloud Backup")
+          .font(.body)
+          .foregroundStyle(.primary)
+        Text(iCloudSubtitle(sync))
+          .font(.caption)
+          .foregroundStyle(sync.status.isError ? .red : .secondary)
+      }
+
+      Spacer()
+
+      Text(sync.status.displayLabel)
+        .font(.subheadline)
+        .foregroundStyle(sync.status == .idle ? .green : .secondary)
+    }
+    .padding(.horizontal, 16)
+    .padding(.vertical, 14)
+  }
+
+  private func iCloudSubtitle(_ sync: iCloudSyncService) -> String {
+    switch sync.status {
+    case .unavailable:
+      return "Enable iCloud Drive in Settings → Apple ID → iCloud"
+    case .error(let msg):
+      return msg
+    case .syncing:
+      return "Syncing trips…"
+    case .idle:
+      if let date = sync.lastSyncDate {
+        return "Last synced \(date.formatted(.relative(presentation: .named)))"
+      }
+      return "Trips backed up to iCloud Drive"
     }
   }
   
@@ -297,5 +346,7 @@ struct SettingsView: View {
   .environmentObject(LocationsStore())
   .environmentObject(VehiclesStore())
   .environmentObject(AutoModeManager(tripStore: TripStore()))
+  .environmentObject(MileageRatesStore())
+  .environmentObject(ReceiptsStore())
 }
 

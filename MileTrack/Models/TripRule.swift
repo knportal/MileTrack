@@ -23,14 +23,26 @@ struct RuleTimeWindow: Codable, Equatable {
 }
 
 struct TripRuleCriteria: Codable, Equatable {
-  /// Case-insensitive substring match against start/end labels.
+  /// Case-insensitive substring match against start/end labels (legacy, matches either).
   var containsText: String?
+  /// Case-insensitive substring match against start label only.
+  var startContains: String?
+  /// Case-insensitive substring match against end label only.
+  var endContains: String?
   /// Case-insensitive substring match against existing client (if any).
   var clientContains: String?
   var timeWindow: RuleTimeWindow?
 
-  init(containsText: String? = nil, clientContains: String? = nil, timeWindow: RuleTimeWindow? = nil) {
+  init(
+    containsText: String? = nil,
+    startContains: String? = nil,
+    endContains: String? = nil,
+    clientContains: String? = nil,
+    timeWindow: RuleTimeWindow? = nil
+  ) {
     self.containsText = containsText
+    self.startContains = startContains
+    self.endContains = endContains
     self.clientContains = clientContains
     self.timeWindow = timeWindow
   }

@@ -201,7 +201,7 @@ struct AutoModeSettingsView: View {
             )
         }
         .buttonStyle(.plain)
-        .accessibilityHint("Opens iOS Settings for MileTrack by Plenitudo.")
+        .accessibilityHint("Opens iOS Settings for MileTrack.")
     }
     
     private func settingsButtonLabel(icon: String, text: String) -> some View {
@@ -228,7 +228,7 @@ struct AutoModeSettingsView: View {
             set: { newValue in
                 if newValue, isMotionDeniedOrRestricted {
                     autoModeEnabled = false
-                    motionDeniedMessage = "Motion permission is denied. Enable Motion & Fitness for MileTrack by Plenitudo in iOS Settings to use Auto Mode."
+                    motionDeniedMessage = "Motion permission is denied. Enable Motion & Fitness for MileTrack in iOS Settings to use Auto Mode."
                     autoModeManager.setEnabled(false)
                     return
                 }
@@ -290,9 +290,9 @@ struct AutoModeSettingsView: View {
             
         case .red:
             if s.locationAuthorization == .denied || s.locationAuthorization == .restricted {
-                return "Location access is blocked. Open iOS Settings and allow location access for MileTrack by Plenitudo to track drives."
+                return "Location access is blocked. Open iOS Settings and allow location access for MileTrack to track drives."
             } else if s.motionAuthorization == .denied || s.motionAuthorization == .restricted {
-                return "Motion access is blocked. Open iOS Settings and enable Motion & Fitness for MileTrack by Plenitudo."
+                return "Motion access is blocked. Open iOS Settings and enable Motion & Fitness for MileTrack."
             } else {
                 return "There's an issue preventing tracking. Check permissions in iOS Settings."
             }

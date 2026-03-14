@@ -36,7 +36,7 @@
       "localizations" : [
 
       ],
-      "name" : "Pro",
+      "name" : "Premium",
       "subscriptions" : [
         {
           "adHocOffers" : [
@@ -45,21 +45,21 @@
           "codeOffers" : [
 
           ],
-          "displayPrice" : "0.99",
+          "displayPrice" : "5.99",
           "familyShareable" : false,
           "groupNumber" : 1,
           "internalID" : "D9F75754",
           "introductoryOffer" : null,
           "localizations" : [
             {
-              "description" : "",
-              "displayName" : "",
+              "description" : "Access to PDF exports, advanced reports, and custom date ranges",
+              "displayName" : "Pro Monthly",
               "locale" : "en_US"
             }
           ],
-          "productID" : "knportal.MileTrack.pro.monthly",
+          "productID" : "ai.plenitudo.MileTrack.pro.monthly",
           "recurringSubscriptionPeriod" : "P1M",
-          "referenceName" : "Pro Monthly",
+          "referenceName" : "Premium Monthly",
           "subscriptionGroupID" : "77BF7CC2",
           "type" : "RecurringSubscription",
           "winbackOffers" : [
@@ -73,21 +73,21 @@
           "codeOffers" : [
 
           ],
-          "displayPrice" : "0.99",
+          "displayPrice" : "39.99",
           "familyShareable" : false,
           "groupNumber" : 1,
           "internalID" : "8666D345",
           "introductoryOffer" : null,
           "localizations" : [
             {
-              "description" : "",
-              "displayName" : "",
+              "description" : "Access to PDF exports, advanced reports, and custom date ranges - Save 44%",
+              "displayName" : "Pro Annual",
               "locale" : "en_US"
             }
           ],
-          "productID" : "knportal.MileTrack.pro.annual",
+          "productID" : "ai.plenitudo.MileTrack.pro.annual",
           "recurringSubscriptionPeriod" : "P1Y",
-          "referenceName" : "Pro Annual",
+          "referenceName" : "Premium Annual",
           "subscriptionGroupID" : "77BF7CC2",
           "type" : "RecurringSubscription",
           "winbackOffers" : [
