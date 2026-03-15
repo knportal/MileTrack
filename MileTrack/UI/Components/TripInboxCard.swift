@@ -256,6 +256,7 @@ struct TripInboxCard: View {
   }
 }
 
+#if DEBUG
 #Preview {
   TripInboxCard(
     trip: TripStore.makeMockTrips().first { $0.state == .pendingCategory }!,
@@ -268,3 +269,4 @@ struct TripInboxCard: View {
   .environmentObject(CategoriesStore())
   .environmentObject(ClientsStore())
 }
+#endif

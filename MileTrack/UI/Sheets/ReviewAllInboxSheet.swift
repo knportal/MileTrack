@@ -263,32 +263,12 @@ private struct ReviewPage: View {
   }
 }
 
+#if DEBUG
 #Preview {
-  let store = TripStore(trips: {
-    var trips = TripStore.makeMockTrips()
-    // Ensure we have multiple pending trips for paging.
-    trips.insert(
-      Trip(
-        date: Date().addingTimeInterval(-2 * 60 * 60),
-        distanceMiles: 7.4,
-        durationSeconds: 20 * 60,
-        startLabel: "Trip start",
-        endLabel: "Trip end",
-        source: .auto,
-        state: .pendingCategory,
-        category: nil,
-        clientOrOrg: nil,
-        projectCode: nil,
-        notes: nil
-      ),
-      at: 0
-    )
-    return trips
-  }())
-
-  return ReviewAllInboxSheet()
-    .environmentObject(store)
+  ReviewAllInboxSheet()
+    .environmentObject(TripStore(trips: TripStore.makeMockTrips()))
     .environmentObject(CategoriesStore())
     .environmentObject(ClientsStore())
 }
+#endif
 

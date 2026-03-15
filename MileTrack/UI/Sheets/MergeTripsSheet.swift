@@ -236,10 +236,9 @@ struct MergeTripsSheet: View {
   }
 }
 
+#if DEBUG
 #Preview {
-  let store = TripStore(trips: TripStore.makeMockTrips())
-  let confirmed = store.confirmedTrips
-  return MergeTripsSheet(anchorTrip: confirmed.first ?? Trip(
+  MergeTripsSheet(anchorTrip: Trip(
     date: Date(),
     distanceMiles: 5.2,
     durationSeconds: 18 * 60,
@@ -251,5 +250,6 @@ struct MergeTripsSheet: View {
     clientOrOrg: nil,
     notes: nil
   ))
-  .environmentObject(store)
+  .environmentObject(TripStore(trips: TripStore.makeMockTrips()))
 }
+#endif
