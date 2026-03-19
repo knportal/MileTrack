@@ -7,6 +7,7 @@ struct InboxView: View {
 
   @State private var editingTrip: Trip?
   @State private var isPresentingReviewAll: Bool = false
+  @State private var isPresentingManualTrip: Bool = false
   @State private var selectedTripIDs: Set<UUID> = []
   @State private var selectedConfirmedTrip: Trip?
 
@@ -34,7 +35,9 @@ struct InboxView: View {
             EmptyStateView(
               systemImage: "tray",
               title: "Inbox is clear",
-              subtitle: "Auto-detected trips appear here until you categorize and confirm them."
+              subtitle: "Auto-detected trips appear here until you categorize and confirm them.",
+              actionTitle: "Log a trip manually",
+              action: { isPresentingManualTrip = true }
             )
           } else {
             let pending = tripStore.pendingTrips
@@ -140,6 +143,9 @@ struct InboxView: View {
         .environmentObject(tripStore)
         .environmentObject(categoriesStore)
         .environmentObject(clientStore)
+    }
+    .sheet(isPresented: $isPresentingManualTrip) {
+      ManualTripSheet()
     }
     .fullScreenCover(isPresented: $isPresentingReviewAll) {
       ReviewAllInboxSheet()

@@ -86,27 +86,26 @@ final class ExportService {
     receipts: [TripReceipt] = []
   ) -> String {
     let header = [
-      "date",
-      "category",
-      "start",
-      "startAddress",
-      "end",
-      "endAddress",
-      "miles",
-      "mileageRate",
-      "mileageCost",
-      "receipts",
-      "receiptTotal",
-      "totalCost",
-      "purpose",
-      "vehicle",
-      "client",
-      "project",
-      "notes",
+      "Date",
+      "From",
+      "To",
+      "Miles",
+      "Category",
+      "Purpose",
+      "Vehicle",
+      "Client",
+      "Project",
+      "Mileage Rate",
+      "Mileage Amount",
+      "Receipts",
+      "Receipt Total",
+      "Total Reimbursement",
+      "Notes",
     ].joined(separator: ",")
 
-    let df = ISO8601DateFormatter()
-    df.formatOptions = [.withInternetDateTime]
+    let df = DateFormatter()
+    df.locale = Locale(identifier: "en_US_POSIX")
+    df.dateFormat = "yyyy-MM-dd"
 
     func field(_ value: String?) -> String {
       escapeCSV(value ?? "")
@@ -141,28 +140,49 @@ final class ExportService {
         return "\(type): \(amount)"
       }.joined(separator: "; ")
       
+      let from = fullLocation(address: trip.startAddress, label: trip.startLabel)
+      let to = fullLocation(address: trip.endAddress, label: trip.endLabel)
+
       return [
         escapeCSV(df.string(from: trip.date)),
-        field(trip.category),
-        field(trip.startLabel),
-        field(trip.startAddress),
-        field(trip.endLabel),
-        field(trip.endAddress),
+        field(from),
+        field(to),
         milesField(trip.distanceMiles),
+        field(trip.category),
+        field(trip.purpose),
+        field(vehicleName(trip.vehicleID)),
+        field(trip.clientOrOrg),
+        field(trip.projectCode),
         field(calculation.map { formatDecimal($0.mileageRate) }),
         field(calculation.map { formatDecimal($0.mileageAmount) }),
         field(receiptsList.isEmpty ? nil : receiptsList),
         field(calculation.map { formatDecimal($0.receiptsAmount) }),
         field(calculation.map { formatDecimal($0.totalAmount) }),
-        field(trip.purpose),
-        field(vehicleName(trip.vehicleID)),
-        field(trip.clientOrOrg),
-        field(trip.projectCode),
         field(trip.notes),
       ].joined(separator: ",")
     }
 
-    return ([header] + lines).joined(separator: "\n") + "\n"
+    // Totals row
+    let totalMiles = trips.reduce(0.0) { $0 + $1.distanceMiles }
+    let calculations = trips.compactMap { calculator.calculateExpense(for: $0, rates: rates, receipts: receipts) }
+    let totalMileageAmount = calculations.reduce(Decimal.zero) { $0 + $1.mileageAmount }
+    let totalReceiptAmount = calculations.reduce(Decimal.zero) { $0 + $1.receiptsAmount }
+    let totalReimbursement = calculations.reduce(Decimal.zero) { $0 + $1.totalAmount }
+
+    let totalsRow = [
+      escapeCSV("TOTALS"),
+      "", "",
+      milesField(totalMiles),
+      "", "", "", "", "",
+      "",
+      escapeCSV(formatDecimal(totalMileageAmount)),
+      "",
+      escapeCSV(formatDecimal(totalReceiptAmount)),
+      escapeCSV(formatDecimal(totalReimbursement)),
+      "",
+    ].joined(separator: ",")
+
+    return ([header] + lines + [""] + [totalsRow]).joined(separator: "\n") + "\n"
   }
 
   func writeCSVToTemporaryFile(csv: String, filename: String) throws -> URL {
@@ -181,6 +201,26 @@ final class ExportService {
     formatter.minimumFractionDigits = 2
     formatter.maximumFractionDigits = 2
     return formatter.string(from: value as NSNumber) ?? "\(value)"
+  }
+
+  /// Combines address and label into a single location string.
+  /// Prefers address (full street); appends label in parentheses if it adds info.
+  private func fullLocation(address: String?, label: String?) -> String? {
+    let addr = address?.trimmingCharacters(in: .whitespacesAndNewlines)
+    let lbl = label?.trimmingCharacters(in: .whitespacesAndNewlines)
+    let hasAddr = addr != nil && !addr!.isEmpty
+    let hasLabel = lbl != nil && !lbl!.isEmpty
+
+    if hasAddr && hasLabel {
+      // If the address already contains the label text, skip the label
+      if addr!.localizedCaseInsensitiveContains(lbl!) {
+        return addr
+      }
+      return "\(lbl!) — \(addr!)"
+    }
+    if hasAddr { return addr }
+    if hasLabel { return lbl }
+    return nil
   }
 
   // MARK: - CSV escaping

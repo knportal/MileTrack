@@ -18,8 +18,7 @@ struct SettingsView: View {
     ScrollView {
       VStack(alignment: .leading, spacing: 20) {
         appSection
-        expenseSection
-        userSection  
+        userSection
         legalSection
         supportSection
       }
@@ -46,13 +45,19 @@ struct SettingsView: View {
           )
           
           Divider().padding(.leading, 50)
-          
-          Divider().padding(.leading, 50)
 
           settingsRow(
             title: "Units & Display",
             icon: "ruler",
             destination: { UnitsSettingsView() }
+          )
+
+          Divider().padding(.leading, 50)
+
+          settingsRow(
+            title: "Mileage Rates",
+            icon: "dollarsign.circle",
+            destination: { MileageRatesView(ratesStore: mileageRatesStore) }
           )
 
           Divider().padding(.leading, 50)
@@ -103,23 +108,6 @@ struct SettingsView: View {
         return "Last synced \(date.formatted(.relative(presentation: .named)))"
       }
       return "Trips backed up to iCloud Drive"
-    }
-  }
-  
-  // MARK: - Expense Section
-  private var expenseSection: some View {
-    VStack(alignment: .leading, spacing: 12) {
-      Text("Expenses")
-        .font(.title2.weight(.semibold))
-        .foregroundStyle(.primary)
-      
-      GlassCard {
-        settingsRow(
-          title: "Mileage Rates",
-          icon: "dollarsign.circle",
-          destination: { MileageRatesView(ratesStore: mileageRatesStore) }
-        )
-      }
     }
   }
   

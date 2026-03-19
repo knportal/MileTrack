@@ -1014,6 +1014,16 @@ struct ReportsView: View {
 
   // MARK: - Export Functions
 
+  private func exportFilename() -> String {
+    let df = DateFormatter()
+    df.locale = Locale(identifier: "en_US_POSIX")
+    df.dateFormat = "yyyy-MM-dd"
+    let range = effectiveDateRange
+    let from = df.string(from: range.start)
+    let to = df.string(from: range.end)
+    return "Mileage_Report_\(from)_to_\(to)"
+  }
+
   private func exportCSV() {
     exportErrorMessage = nil
     let trips = filteredConfirmedTrips
@@ -1029,11 +1039,7 @@ struct ReportsView: View {
       rates: mileageRatesStore.rates,
       receipts: receiptsStore.receipts
     )
-    let df = DateFormatter()
-    df.locale = Locale(identifier: "en_US_POSIX")
-    df.dateFormat = "yyyy-MM-dd_HHmm"
-    let stamp = df.string(from: Date())
-    let filename = "MileTrackByPlenitudo_\(selectedDateTab.rawValue)_\(stamp)"
+    let filename = exportFilename()
 
     do {
       let url = try exportService.writeCSVToTemporaryFile(csv: csv, filename: filename)
@@ -1059,11 +1065,7 @@ struct ReportsView: View {
 
     let range = exportService.range(for: rangePreset, custom: customRange)
 
-    let df = DateFormatter()
-    df.locale = Locale(identifier: "en_US_POSIX")
-    df.dateFormat = "yyyy-MM-dd_HHmm"
-    let stamp = df.string(from: Date())
-    let filename = "MileTrackByPlenitudo_Summary_\(selectedDateTab.rawValue)_\(stamp)"
+    let filename = exportFilename()
 
     do {
       let url = try pdfExportService.writeSummaryPDFToTemporaryFile(
