@@ -557,6 +557,7 @@ final class AutoModeManager: ObservableObject {
   }
 
 #if DEBUG
+  @MainActor
   func debugSimulateDrive(distanceMiles: Double = 3.2, durationSeconds: Int = 420) {
     let end = Date()
     
