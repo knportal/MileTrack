@@ -76,6 +76,8 @@ struct ReportsView: View {
   
   // Edit trip
   @State private var editingTrip: Trip?
+  @State private var tripDetailsExpanded = false
+  @State private var tripDetailsLimit = 20
 
   @AppStorage("useMetricUnits") private var useMetricUnits = false
 
@@ -107,9 +109,19 @@ struct ReportsView: View {
     }
     .onChange(of: selectedDateTab) { _, _ in
       chartsVisible = false
+      tripDetailsExpanded = false
+      tripDetailsLimit = 20
       withAnimation(.easeOut(duration: 0.55).delay(0.15)) {
         chartsVisible = true
       }
+    }
+    .onChange(of: selectedMonth) { _, _ in
+      tripDetailsExpanded = false
+      tripDetailsLimit = 20
+    }
+    .onChange(of: selectedYear) { _, _ in
+      tripDetailsExpanded = false
+      tripDetailsLimit = 20
     }
     .sheet(item: $shareItem) { item in
       ActivityShareSheet(items: [item.url])
@@ -795,15 +807,29 @@ struct ReportsView: View {
 
   private var recentConfirmedSection: some View {
     VStack(alignment: .leading, spacing: DesignConstants.Spacing.sm) {
-      HStack {
-        Text("Trip Details")
-          .font(.subheadline.weight(.semibold))
-          .foregroundStyle(.secondary)
-        Spacer()
-        Text("\(filteredConfirmedTrips.count)")
-          .font(.caption.weight(.medium))
-          .foregroundStyle(.tertiary)
+      Button {
+        withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
+          tripDetailsExpanded.toggle()
+          if tripDetailsExpanded {
+            tripDetailsLimit = 20
+          }
+        }
+      } label: {
+        HStack {
+          Text("Trip Details")
+            .font(.subheadline.weight(.semibold))
+            .foregroundStyle(.secondary)
+          Spacer()
+          Text("\(filteredConfirmedTrips.count) trips")
+            .font(.caption.weight(.medium))
+            .foregroundStyle(.tertiary)
+          Image(systemName: "chevron.right")
+            .font(.caption.weight(.semibold))
+            .foregroundStyle(.tertiary)
+            .rotationEffect(.degrees(tripDetailsExpanded ? 90 : 0))
+        }
       }
+      .buttonStyle(.plain)
 
       if filteredConfirmedTrips.isEmpty {
         EmptyStateView(
@@ -811,10 +837,29 @@ struct ReportsView: View {
           title: "No trips",
           subtitle: "Confirm trips in Inbox to see reports."
         )
-      } else {
+      } else if tripDetailsExpanded {
+        let trips = filteredConfirmedTrips
+        let visible = Array(trips.prefix(tripDetailsLimit))
+        let remaining = trips.count - visible.count
+
         VStack(spacing: DesignConstants.Spacing.sm) {
-          ForEach(filteredConfirmedTrips, id: \.id) { trip in
+          ForEach(visible, id: \.id) { trip in
             tripRow(trip)
+          }
+
+          if remaining > 0 {
+            Button {
+              withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
+                tripDetailsLimit += 20
+              }
+            } label: {
+              Text("Show more (\(remaining) remaining)")
+                .font(.subheadline.weight(.medium))
+                .foregroundStyle(Color.accentColor)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 12)
+            }
+            .buttonStyle(.plain)
           }
         }
       }
