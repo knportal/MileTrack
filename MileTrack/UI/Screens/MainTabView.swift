@@ -6,12 +6,10 @@ struct MainTabView: View {
   @State private var isPresentingManualTrip = false
   @State private var fabIsPressed = false
 
-  @EnvironmentObject private var mileageRatesStore: MileageRatesStore
-  @EnvironmentObject private var receiptsStore: ReceiptsStore
   @EnvironmentObject private var tripStore: TripStore
 
   enum Tab: Hashable {
-    case home, inbox, reports, expenses, settings
+    case home, inbox, reports, settings
   }
 
   var body: some View {
@@ -46,18 +44,6 @@ struct MainTabView: View {
           Label("Reports", systemImage: "chart.bar")
         }
         .tag(Tab.reports)
-
-        NavigationStack {
-          ExpenseReportView(
-            trips: tripStore.trips,
-            ratesStore: mileageRatesStore,
-            receiptsStore: receiptsStore
-          )
-        }
-        .tabItem {
-          Label("Expenses", systemImage: "dollarsign.circle")
-        }
-        .tag(Tab.expenses)
 
         NavigationStack {
           SettingsView()

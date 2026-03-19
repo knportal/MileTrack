@@ -12,7 +12,7 @@ struct SettingsView: View {
   @EnvironmentObject private var vehiclesStore: VehiclesStore
   @EnvironmentObject private var autoModeManager: AutoModeManager
   @EnvironmentObject private var mileageRatesStore: MileageRatesStore
-  @EnvironmentObject private var receiptsStore: ReceiptsStore
+
 
   var body: some View {
     ScrollView {
@@ -114,27 +114,11 @@ struct SettingsView: View {
         .foregroundStyle(.primary)
       
       GlassCard {
-        VStack(spacing: 0) {
-          settingsRow(
-            title: "Mileage Rates", 
-            icon: "dollarsign.circle",
-            destination: { MileageRatesView(ratesStore: mileageRatesStore) }
-          )
-          
-          Divider().padding(.leading, 50)
-          
-          settingsRow(
-            title: "Expense Report", 
-            icon: "chart.bar.doc.horizontal",
-            destination: { 
-              ExpenseReportView(
-                trips: tripStore.trips,
-                ratesStore: mileageRatesStore,
-                receiptsStore: receiptsStore
-              )
-            }
-          )
-        }
+        settingsRow(
+          title: "Mileage Rates",
+          icon: "dollarsign.circle",
+          destination: { MileageRatesView(ratesStore: mileageRatesStore) }
+        )
       }
     }
   }

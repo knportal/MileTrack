@@ -16,6 +16,8 @@ struct EditTripSheet: View {
 
   @State private var startLabel: String = ""
   @State private var endLabel: String = ""
+  @State private var startAddress: String = ""
+  @State private var endAddress: String = ""
   @State private var selectedCategory: String?
   @State private var selectedClient: String?
   @State private var purposeText: String = ""
@@ -215,12 +217,17 @@ struct EditTripSheet: View {
                 .strokeBorder(Color.primary.opacity(0.10), lineWidth: 1)
             }
             .accessibilityLabel("Start location name")
-          if let addr = trip?.startAddress, !addr.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            Text(addr)
-              .font(.caption2)
-              .foregroundStyle(.secondary)
-              .padding(.horizontal, 4)
-          }
+          TextField("Start street address", text: $startAddress)
+            .font(.subheadline)
+            .textInputAutocapitalization(.words)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 10)
+            .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+            .overlay {
+              RoundedRectangle(cornerRadius: 14, style: .continuous)
+                .strokeBorder(Color.primary.opacity(0.10), lineWidth: 1)
+            }
+            .accessibilityLabel("Start street address")
         }
 
         VStack(alignment: .leading, spacing: 8) {
@@ -237,12 +244,17 @@ struct EditTripSheet: View {
                 .strokeBorder(Color.primary.opacity(0.10), lineWidth: 1)
             }
             .accessibilityLabel("End location name")
-          if let addr = trip?.endAddress, !addr.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            Text(addr)
-              .font(.caption2)
-              .foregroundStyle(.secondary)
-              .padding(.horizontal, 4)
-          }
+          TextField("End street address", text: $endAddress)
+            .font(.subheadline)
+            .textInputAutocapitalization(.words)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 10)
+            .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+            .overlay {
+              RoundedRectangle(cornerRadius: 14, style: .continuous)
+                .strokeBorder(Color.primary.opacity(0.10), lineWidth: 1)
+            }
+            .accessibilityLabel("End street address")
         }
 
         if let stops = trip?.waypoints, !stops.isEmpty {
@@ -629,6 +641,8 @@ private var resolvedCategory: String? {
     guard let trip else { return }
     startLabel = trip.startLabel ?? ""
     endLabel = trip.endLabel ?? ""
+    startAddress = trip.startAddress ?? ""
+    endAddress = trip.endAddress ?? ""
     
     let existing = trip.category?.trimmingCharacters(in: .whitespacesAndNewlines)
     if let existing, !existing.isEmpty {
@@ -650,12 +664,16 @@ private var resolvedCategory: String? {
 
     let trimmedStart = startLabel.trimmingCharacters(in: .whitespacesAndNewlines)
     let trimmedEnd = endLabel.trimmingCharacters(in: .whitespacesAndNewlines)
+    let trimmedStartAddr = startAddress.trimmingCharacters(in: .whitespacesAndNewlines)
+    let trimmedEndAddr = endAddress.trimmingCharacters(in: .whitespacesAndNewlines)
     let trimmedPurpose = purposeText.trimmingCharacters(in: .whitespacesAndNewlines)
     let trimmedProject = projectCodeText.trimmingCharacters(in: .whitespacesAndNewlines)
     let trimmedNotes = notes.trimmingCharacters(in: .whitespacesAndNewlines)
 
     tripStore.trips[idx].startLabel = trimmedStart.isEmpty ? nil : trimmedStart
     tripStore.trips[idx].endLabel = trimmedEnd.isEmpty ? nil : trimmedEnd
+    tripStore.trips[idx].startAddress = trimmedStartAddr.isEmpty ? nil : trimmedStartAddr
+    tripStore.trips[idx].endAddress = trimmedEndAddr.isEmpty ? nil : trimmedEndAddr
     tripStore.trips[idx].category = category
     tripStore.trips[idx].vehicleID = selectedVehicleID
     tripStore.trips[idx].clientOrOrg = selectedClient
