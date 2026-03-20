@@ -41,7 +41,6 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
-				UI/Sheets/QUICK_START.md,
 			);
 			target = B90C24C62F31052E008EA030 /* MileTrack */;
 		};
@@ -208,7 +207,7 @@
 					};
 				};
 			};
-			buildConfigurationList = B90C24C22F31052E008EA030 /* Build configuration list for PBXProject "MileTrack" */;
+			buildConfigurationList = B90C24C22F31052E008EA030 /* Build configuration list for PBXProject "MileTrack by Plenitudo" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -424,13 +423,13 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = MileTrack/MileTrack.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = C8SXTF2Y53;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = MileTrack/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "MileTrack";
-				INFOPLIST_KEY_LSApplicationCategoryType = "";
+				INFOPLIST_KEY_CFBundleDisplayName = MileTrack;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.business";
 				INFOPLIST_KEY_NSFileProviderDomainUsageDescription = "MileTrack by Plenitudo needs to access files to export trip reports and receipts.";
 				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "MileTrack by Plenitudo needs background location access to automatically detect and track your trips even when the app is closed. This enables Auto Mode to work seamlessly without requiring the app to be open.";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "MileTrack by Plenitudo needs your location to track your trips and calculate mileage while you're using the app.";
@@ -466,13 +465,13 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = MileTrack/MileTrack.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = C8SXTF2Y53;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = MileTrack/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "MileTrack";
-				INFOPLIST_KEY_LSApplicationCategoryType = "";
+				INFOPLIST_KEY_CFBundleDisplayName = MileTrack;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.business";
 				INFOPLIST_KEY_NSFileProviderDomainUsageDescription = "MileTrack by Plenitudo needs to access files to export trip reports and receipts.";
 				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "MileTrack by Plenitudo needs background location access to automatically detect and track your trips even when the app is closed. This enables Auto Mode to work seamlessly without requiring the app to be open.";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "MileTrack by Plenitudo needs your location to track your trips and calculate mileage while you're using the app.";
@@ -588,7 +587,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		B90C24C22F31052E008EA030 /* Build configuration list for PBXProject "MileTrack" */ = {
+		B90C24C22F31052E008EA030 /* Build configuration list for PBXProject "MileTrack by Plenitudo" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				B90C24E82F31052F008EA030 /* Debug */,
