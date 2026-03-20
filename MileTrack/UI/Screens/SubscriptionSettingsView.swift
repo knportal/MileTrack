@@ -9,6 +9,7 @@ struct SubscriptionSettingsView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
                 currentPlanSection
+                benefitsSection
                 plansSection
                 actionsSection
                 legalSection
@@ -47,13 +48,48 @@ struct SubscriptionSettingsView: View {
         }
     }
     
+    // MARK: - Benefits Section
+    private var benefitsSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("What's Included")
+                .font(.title2.weight(.semibold))
+                .foregroundStyle(.primary)
+
+            GlassCard {
+                VStack(alignment: .leading, spacing: 14) {
+                    benefitRow(icon: "location.fill", title: "Unlimited Auto Tracking", description: "Automatic trip detection runs continuously in the background")
+                    benefitRow(icon: "chart.bar.fill", title: "Advanced Reports", description: "Detailed mileage reports with filters, charts, and summaries")
+                    benefitRow(icon: "doc.fill", title: "PDF Export", description: "Generate professional PDF reports for tax filing or reimbursement")
+                    benefitRow(icon: "gearshape.2.fill", title: "Custom Rules", description: "Create rules and templates to automatically categorize trips")
+                }
+                .padding(.vertical, 4)
+            }
+        }
+    }
+
+    private func benefitRow(icon: String, title: String, description: String) -> some View {
+        HStack(alignment: .top, spacing: 12) {
+            Image(systemName: icon)
+                .font(.body)
+                .foregroundStyle(.accentColor)
+                .frame(width: 24, height: 24)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(title)
+                    .font(.subheadline.weight(.semibold))
+                Text(description)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+        }
+    }
+
     // MARK: - Plans Section
     private var plansSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("Available Plans")
                 .font(.title2.weight(.semibold))
                 .foregroundStyle(.primary)
-            
+
             GlassCard {
                 if subscriptionManager.isLoadingProducts && subscriptionManager.products.isEmpty {
                     HStack {
