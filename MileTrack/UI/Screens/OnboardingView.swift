@@ -165,6 +165,7 @@ private struct OnboardingPage: View {
       }
       .padding(.bottom, 56)
     }
+    .frame(maxWidth: DesignConstants.iPadMaxContentWidth)
   }
 }
 

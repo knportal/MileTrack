@@ -33,8 +33,10 @@ struct CategorizeTripSheet: View {
           categoryCard
           optionalDetailsCard
         }
+        .frame(maxWidth: DesignConstants.iPadMaxContentWidth)
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
+        .frame(maxWidth: .infinity)
       }
       .background(.background)
       .navigationTitle("Categorize")

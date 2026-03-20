@@ -21,7 +21,7 @@ struct InboxView: View {
   @State private var undoTask: Task<Void, Never>?
 
   private let swipeThreshold: CGFloat = 110
-  private let screenWidth: CGFloat = 500
+  private var screenWidth: CGFloat { UIScreen.main.bounds.width }
 
   private var isInMergeMode: Bool { !selectedTripIDs.isEmpty }
 
@@ -103,8 +103,10 @@ struct InboxView: View {
 
           recentConfirmedSection
         }
+        .frame(maxWidth: DesignConstants.iPadMaxContentWidth)
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
+        .frame(maxWidth: .infinity)
       }
       .background(.background)
 

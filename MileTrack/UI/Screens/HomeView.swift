@@ -21,8 +21,10 @@ struct HomeView: View {
         kpiRow
         actionsCard
       }
+      .frame(maxWidth: DesignConstants.iPadMaxContentWidth)
       .padding(.horizontal, DesignConstants.Spacing.md)
       .padding(.vertical, DesignConstants.Spacing.sm)
+      .frame(maxWidth: .infinity)
     }
     .background(.background)
     .navigationTitle("Home")

@@ -58,6 +58,9 @@ enum DesignConstants {
     }
   }
 
+  /// Maximum content width on iPad to prevent overly wide layouts.
+  static let iPadMaxContentWidth: CGFloat = 600
+
   enum TextLimits {
     static let shortName: Int = 50       // Category, client, location names
     static let mediumText: Int = 100     // Vehicle names, license plates

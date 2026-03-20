@@ -14,8 +14,10 @@ struct SubscriptionSettingsView: View {
                 actionsSection
                 legalSection
             }
+            .frame(maxWidth: DesignConstants.iPadMaxContentWidth)
             .padding(.horizontal, 16)
             .padding(.vertical, 12)
+            .frame(maxWidth: .infinity)
         }
         .background(.background)
         .navigationTitle("Subscription & Billing")
@@ -71,7 +73,7 @@ struct SubscriptionSettingsView: View {
         HStack(alignment: .top, spacing: 12) {
             Image(systemName: icon)
                 .font(.body)
-                .foregroundStyle(.accentColor)
+                .foregroundStyle(Color.accentColor)
                 .frame(width: 24, height: 24)
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)

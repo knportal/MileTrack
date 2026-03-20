@@ -97,8 +97,10 @@ struct ReportsView: View {
         milesByClientSection
         recentConfirmedSection
       }
+      .frame(maxWidth: DesignConstants.iPadMaxContentWidth)
       .padding(.horizontal, DesignConstants.Spacing.md)
       .padding(.vertical, DesignConstants.Spacing.sm)
+      .frame(maxWidth: .infinity)
     }
     .background(.background)
     .navigationTitle("Reports")
