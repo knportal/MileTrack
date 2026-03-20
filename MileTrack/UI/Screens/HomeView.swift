@@ -283,8 +283,6 @@ private struct TrackingHealthChip: View {
   let health: AutoModeManager.TrackingHealth
   var onTap: (() -> Void)?
 
-  @State private var isPulsing = false
-
   private var indicatorColor: Color {
     switch health {
     case .green: return .green
@@ -302,16 +300,8 @@ private struct TrackingHealthChip: View {
           .fill(indicatorColor)
           .frame(width: 8, height: 8)
           .overlay {
-            if isPulsing {
-              Circle()
-                .fill(indicatorColor.opacity(0.4))
-                .frame(width: 8, height: 8)
-                .scaleEffect(isPulsing ? 1.8 : 1.0)
-                .opacity(isPulsing ? 0 : 0.6)
-                .animation(
-                  .easeOut(duration: 1.6).repeatForever(autoreverses: false),
-                  value: isPulsing
-                )
+            if health == .green {
+              PulseRing(color: indicatorColor)
             }
           }
           .accessibilityHidden(true)
@@ -337,14 +327,25 @@ private struct TrackingHealthChip: View {
     .accessibilityLabel("Tracking Status")
     .accessibilityValue(health.title)
     .accessibilityHint(health != .green ? "Opens Settings to fix tracking issues." : "")
-    .onAppear {
-      if health == .green {
-        isPulsing = true
+  }
+}
+
+/// Radiating pulse ring that expands and fades, then repeats.
+private struct PulseRing: View {
+  let color: Color
+  @State private var animate = false
+
+  var body: some View {
+    Circle()
+      .stroke(color.opacity(0.5), lineWidth: 1.5)
+      .frame(width: 8, height: 8)
+      .scaleEffect(animate ? 2.2 : 1.0)
+      .opacity(animate ? 0 : 0.7)
+      .onAppear {
+        withAnimation(.easeOut(duration: 1.6).repeatForever(autoreverses: false)) {
+          animate = true
+        }
       }
-    }
-    .onChange(of: health) { _, newHealth in
-      isPulsing = newHealth == .green
-    }
   }
 }
 
