@@ -37,7 +37,7 @@ struct HomeView: View {
     ) {
       VStack(alignment: .leading, spacing: DesignConstants.Spacing.sm) {
         Text("Status")
-          .font(.headline)
+          .font(.custom("Manrope", size: 17).weight(.semibold))
 
         HStack(alignment: .center, spacing: 8) {
           StatusChip(
@@ -91,7 +91,7 @@ struct HomeView: View {
     GlassCard(depth: .surface) {
       VStack(alignment: .leading, spacing: DesignConstants.Spacing.sm) {
         Text("Quick Actions")
-          .font(.headline)
+          .font(.custom("Manrope", size: 17).weight(.semibold))
 
         if tripStore.pendingTrips.count > 0 {
           PrimaryGlassButton(title: "Review Inbox", systemImage: "tray") {
@@ -124,7 +124,7 @@ struct HomeView: View {
       VStack(alignment: .leading, spacing: 6) {
         HStack(alignment: .firstTextBaseline, spacing: 0) {
           Text(yearDeductionFormatted)
-            .font(.system(size: 40, weight: .bold, design: .rounded))
+            .font(.custom("Manrope", size: 40).weight(.bold))
             .foregroundStyle(yearDeductionAmount > 0 ? .primary : .secondary)
             .contentTransition(.numericText())
             .animation(.spring(response: 0.5, dampingFraction: 0.8), value: yearDeductionFormatted)

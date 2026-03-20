@@ -23,7 +23,7 @@ struct MetricTile: View {
       }
 
       Text(value)
-        .font(.title2.weight(.bold))
+        .font(.custom("Manrope", size: 22).weight(.bold))
         .foregroundStyle(.primary)
         .lineLimit(1)
         .minimumScaleFactor(0.7)
