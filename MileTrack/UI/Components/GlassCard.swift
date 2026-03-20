@@ -30,10 +30,16 @@ struct GlassCard<Content: View>: View {
         isInteractive: isInteractive,
         depth: depth
       ))
-      .shadow(
-        color: showGlow ? Color.accentColor.opacity(DesignConstants.Glow.opacity) : .clear,
-        radius: DesignConstants.Glow.radius
-      )
+      .background {
+        if showGlow {
+          RoundedRectangle(cornerRadius: cornerRadius)
+            .fill(.clear)
+            .shadow(
+              color: Color.accentColor.opacity(DesignConstants.Glow.opacity),
+              radius: DesignConstants.Glow.radius
+            )
+        }
+      }
       .accessibilityElement(children: .contain)
   }
 }

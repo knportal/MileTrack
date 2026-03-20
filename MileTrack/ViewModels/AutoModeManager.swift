@@ -317,6 +317,8 @@ final class AutoModeManager: ObservableObject {
     let startDate: Date
     let startLatitude: Double?
     let startLongitude: Double?
+    let lastLatitude: Double?
+    let lastLongitude: Double?
     let accumulatedMeters: Double
     let savedAt: Date
 
@@ -329,10 +331,13 @@ final class AutoModeManager: ObservableObject {
 
   private func persistInProgressState() {
     guard status.isDriving, let startDate = driveStartDate else { return }
+    let lastLoc = locationTracking.lastAcceptedLocation
     let state = InProgressTripState(
       startDate: startDate,
       startLatitude: driveStartLocation?.coordinate.latitude,
       startLongitude: driveStartLocation?.coordinate.longitude,
+      lastLatitude: lastLoc?.coordinate.latitude,
+      lastLongitude: lastLoc?.coordinate.longitude,
       accumulatedMeters: status.distanceMeters,
       savedAt: Date()
     )
@@ -378,8 +383,8 @@ final class AutoModeManager: ObservableObject {
       endLabel: nil,
       startLatitude: state.startLatitude,
       startLongitude: state.startLongitude,
-      endLatitude: nil,
-      endLongitude: nil,
+      endLatitude: state.lastLatitude,
+      endLongitude: state.lastLongitude,
       source: .auto,
       state: .pendingCategory,
       category: nil,
@@ -414,6 +419,31 @@ final class AutoModeManager: ObservableObject {
             if let idx = self.tripStore.trips.firstIndex(where: { $0.id == trip.id }) {
               self.tripStore.trips[idx].startLabel = result.shortLabel
               self.tripStore.trips[idx].startAddress = result.fullAddress
+            }
+          }
+        }
+        geocodeTasks.append(task)
+      }
+    }
+
+    if let lat = state.lastLatitude, let lon = state.lastLongitude {
+      let endLoc = CLLocation(latitude: lat, longitude: lon)
+      if let match = locationsStore?.nearest(to: endLoc) {
+        if let idx = tripStore.trips.firstIndex(where: { $0.id == trip.id }) {
+          tripStore.trips[idx].endLabel = match.location.name
+          if !match.location.address.isEmpty {
+            tripStore.trips[idx].endAddress = match.location.address
+          }
+        }
+      } else {
+        let task = Task { [weak self] in
+          guard let self else { return }
+          let result = await self.geocoder.addresses(for: endLoc)
+          guard let result else { return }
+          await MainActor.run {
+            if let idx = self.tripStore.trips.firstIndex(where: { $0.id == trip.id }) {
+              self.tripStore.trips[idx].endLabel = result.shortLabel
+              self.tripStore.trips[idx].endAddress = result.fullAddress
             }
           }
         }

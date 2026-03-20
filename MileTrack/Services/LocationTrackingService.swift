@@ -34,7 +34,7 @@ final class LocationTrackingService: NSObject {
 
   private var lastLocation: CLLocation?
   private var firstLocation: CLLocation?
-  private var lastAcceptedLocation: CLLocation?
+  private(set) var lastAcceptedLocation: CLLocation?
   private var accumulatedDistanceMeters: Double = 0
   private(set) var startDate: Date?
 
