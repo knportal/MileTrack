@@ -301,14 +301,19 @@ private struct TrackingHealthChip: View {
         Circle()
           .fill(indicatorColor)
           .frame(width: 8, height: 8)
-          .scaleEffect(isPulsing ? 1.15 : 1.0)
-          .opacity(isPulsing ? 0.7 : 1.0)
-          .animation(
-            health == .green
-              ? .easeInOut(duration: 1.4).repeatForever(autoreverses: true)
-              : .default,
-            value: isPulsing
-          )
+          .overlay {
+            if isPulsing {
+              Circle()
+                .fill(indicatorColor.opacity(0.4))
+                .frame(width: 8, height: 8)
+                .scaleEffect(isPulsing ? 1.8 : 1.0)
+                .opacity(isPulsing ? 0 : 0.6)
+                .animation(
+                  .easeOut(duration: 1.6).repeatForever(autoreverses: false),
+                  value: isPulsing
+                )
+            }
+          }
           .accessibilityHidden(true)
         Text(health.title)
           .font(.caption.weight(.semibold))
