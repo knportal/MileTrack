@@ -524,11 +524,15 @@ final class AutoModeManager: ObservableObject {
     // Resolve labels: snap to saved locations first, then fall back to reverse geocoding.
     if let startLoc {
       if let match = locationsStore?.nearest(to: startLoc) {
-        // Snap to saved location (e.g. "Home")
+        // Snap to saved location (e.g. "Home") — update label, address, and coordinates
         if let idx = tripStore.trips.firstIndex(where: { $0.id == trip.id }) {
           tripStore.trips[idx].startLabel = match.location.name
           if !match.location.address.isEmpty {
             tripStore.trips[idx].startAddress = match.location.address
+          }
+          if let lat = match.location.latitude, let lon = match.location.longitude {
+            tripStore.trips[idx].startLatitude = lat
+            tripStore.trips[idx].startLongitude = lon
           }
         }
 #if DEBUG
@@ -553,11 +557,15 @@ final class AutoModeManager: ObservableObject {
     let endLoc = endLocation ?? result.endLocation
     if let endLoc {
       if let match = locationsStore?.nearest(to: endLoc) {
-        // Snap to saved location
+        // Snap to saved location — update label, address, and coordinates
         if let idx = tripStore.trips.firstIndex(where: { $0.id == trip.id }) {
           tripStore.trips[idx].endLabel = match.location.name
           if !match.location.address.isEmpty {
             tripStore.trips[idx].endAddress = match.location.address
+          }
+          if let lat = match.location.latitude, let lon = match.location.longitude {
+            tripStore.trips[idx].endLatitude = lat
+            tripStore.trips[idx].endLongitude = lon
           }
         }
 #if DEBUG

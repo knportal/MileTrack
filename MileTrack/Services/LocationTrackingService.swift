@@ -57,16 +57,16 @@ final class LocationTrackingService: NSObject {
     self.manager.delegate = self
     self.manager.activityType = .automotiveNavigation
     // Start with low-power settings; accuracy is adjusted based on monitoring vs tracking state
-    self.manager.desiredAccuracy = kCLLocationAccuracyHundredMeters
-    self.manager.distanceFilter = 50
+    self.manager.desiredAccuracy = kCLLocationAccuracyNearestTenMeters
+    self.manager.distanceFilter = 20
     self.manager.pausesLocationUpdatesAutomatically = false // Critical for background tracking
     // Note: allowsBackgroundLocationUpdates is set in startMonitoring() only after confirming .authorizedAlways
   }
   
   /// Configure location manager for low-power monitoring (waiting for movement).
   private func configureForMonitoring() {
-    manager.desiredAccuracy = kCLLocationAccuracyHundredMeters
-    manager.distanceFilter = 50
+    manager.desiredAccuracy = kCLLocationAccuracyNearestTenMeters
+    manager.distanceFilter = 20
   }
   
   /// Configure location manager for high-accuracy tracking (active trip).
