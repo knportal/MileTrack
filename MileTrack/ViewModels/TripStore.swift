@@ -210,10 +210,21 @@ final class TripStore: ObservableObject {
     let earliest = sorted.first!
     let latest = sorted.last!
 
-    // Collect intermediate stops: the endLabel of every trip except the last.
+    // Collect intermediate stops: combine endLabel + endAddress for each trip except the last.
     let intermediateStops = sorted.dropLast()
-      .compactMap { $0.endLabel?.trimmingCharacters(in: .whitespacesAndNewlines) }
-      .filter { !$0.isEmpty }
+      .compactMap { trip -> String? in
+        let label = trip.endLabel?.trimmingCharacters(in: .whitespacesAndNewlines)
+        let addr = trip.endAddress?.trimmingCharacters(in: .whitespacesAndNewlines)
+        let hasLabel = label != nil && !label!.isEmpty
+        let hasAddr = addr != nil && !addr!.isEmpty
+        if hasLabel && hasAddr {
+          if addr!.localizedCaseInsensitiveContains(label!) { return addr }
+          return "\(label!) — \(addr!)"
+        }
+        if hasAddr { return addr }
+        if hasLabel { return label }
+        return nil
+      }
     let waypointsValue: [String]? = intermediateStops.isEmpty ? nil : intermediateStops
 
     let totalMiles = trips.reduce(0.0) { $0 + $1.distanceMiles }
