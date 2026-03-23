@@ -1,11 +1,11 @@
 import Foundation
 
-#if DEBUG
-
 /// Lightweight, thread-safe file logger for on-device diagnostics.
 ///
 /// Writes newline-delimited lines to Application Support `diagnostics.log`:
 /// `2026-02-02T20:10:33-0500 [tracking] started location updates`
+/// Active in all builds (DEBUG + Release). Data is only shared when the user
+/// explicitly exports from Settings → Diagnostics.
 final class DiagnosticsLogger {
   static let shared = DiagnosticsLogger()
 
@@ -158,27 +158,4 @@ final class DiagnosticsLogger {
     return base.appendingPathComponent(bundleID, isDirectory: true)
   }
 }
-
-#else
-
-/// Release builds: no-op diagnostics logger (keeps call sites compile-safe).
-final class DiagnosticsLogger {
-  static let shared = DiagnosticsLogger()
-
-  init(
-    fileManager: FileManager = .default,
-    filename: String = "diagnostics.log",
-    maxBytes: Int = 1_000_000
-  ) {}
-
-  func log(_ category: String, _ message: String) {}
-  func readAll() -> String { "" }
-  func readLastLines(_ n: Int) -> String { "" }
-  func clear() {}
-  func logFileURL() -> URL {
-    URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent("diagnostics.log", isDirectory: false)
-  }
-}
-
-#endif
 
