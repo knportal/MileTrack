@@ -777,11 +777,17 @@ extension AutoModeManager: LocationTrackingServiceDelegate {
       self.status.tripStartDate = now
       self.logger.log("tracking", "movement detected (speed: \(String(format: "%.1f", speedMPH)) mph)")
 
-      // Start distance tracking
+      // Start distance tracking — seed with pre-detection distance so early miles aren't lost
       if !self.status.isLocationTrackingActive {
-        self.locationTracking.startTracking()
+        var seedDistance: Double = 0
+        if let startLoc = self.driveStartLocation {
+          seedDistance = startLoc.distance(from: location)
+        }
+        self.locationTracking.startTracking(seedDistance: seedDistance, seedLocation: location)
         self.status.isLocationTrackingActive = true
-        self.logger.log("tracking", "distance tracking started")
+        self.status.distanceMeters = seedDistance
+        let seedMiles = seedDistance / 1609.344
+        self.logger.log("tracking", "distance tracking started (seed: \(String(format: "%.0f", seedDistance))m / \(String(format: "%.2f", seedMiles))mi)")
       }
 
 #if DEBUG

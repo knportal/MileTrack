@@ -25,7 +25,7 @@ final class LocationTrackingService: NSObject {
   // 5 mph = 2.2352 m/s
   static let speedThresholdMPS: Double = 2.2352
   static let stopConfirmationSeconds: TimeInterval = 120
-  static let requiredConsecutiveHighSpeedReadings: Int = 3
+  static let requiredConsecutiveHighSpeedReadings: Int = 2
 
   private let manager: CLLocationManager
   private(set) var isTracking: Bool = false
@@ -58,7 +58,7 @@ final class LocationTrackingService: NSObject {
     self.manager.activityType = .automotiveNavigation
     // Start with low-power settings; accuracy is adjusted based on monitoring vs tracking state
     self.manager.desiredAccuracy = kCLLocationAccuracyNearestTenMeters
-    self.manager.distanceFilter = 20
+    self.manager.distanceFilter = 10
     self.manager.pausesLocationUpdatesAutomatically = false // Critical for background tracking
     // Note: allowsBackgroundLocationUpdates is set in startMonitoring() only after confirming .authorizedAlways
   }
@@ -66,7 +66,7 @@ final class LocationTrackingService: NSObject {
   /// Configure location manager for low-power monitoring (waiting for movement).
   private func configureForMonitoring() {
     manager.desiredAccuracy = kCLLocationAccuracyNearestTenMeters
-    manager.distanceFilter = 20
+    manager.distanceFilter = 10
   }
   
   /// Configure location manager for high-accuracy tracking (active trip).
@@ -126,19 +126,21 @@ final class LocationTrackingService: NSObject {
     lastBelowSpeedDate = nil
   }
 
-  func startTracking() {
+  /// Start tracking distance. Optionally seed with pre-detection distance
+  /// so miles driven before detection triggers are not silently lost.
+  func startTracking(seedDistance: Double = 0, seedLocation: CLLocation? = nil) {
     guard !isTracking else { return }
     isTracking = true
     startDate = Date()
-    lastLocation = nil
-    firstLocation = nil
-    lastAcceptedLocation = nil
-    accumulatedDistanceMeters = 0
+    firstLocation = seedLocation
+    lastLocation = seedLocation
+    lastAcceptedLocation = seedLocation
+    accumulatedDistanceMeters = seedDistance
     delegate?.locationTrackingDidUpdateDistance(self, distanceMeters: accumulatedDistanceMeters)
 
     // Switch to high-accuracy mode for precise distance tracking
     configureForTracking()
-    
+
     // If not authorized, this won't produce locations; we still keep status visible via delegate.
     if !isMonitoring {
       manager.startUpdatingLocation()
