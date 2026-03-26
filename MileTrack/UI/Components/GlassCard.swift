@@ -73,9 +73,13 @@ private struct GlassEffectModifier: ViewModifier {
             .strokeBorder(gradientBorder, lineWidth: 0.5)
         }
         .overlay {
-          if depth != .base && colorScheme == .dark {
+          if depth != .base {
             RoundedRectangle(cornerRadius: cornerRadius)
-              .fill(Color.white.opacity(depth.overlayOpacity))
+              .fill(
+                colorScheme == .dark
+                  ? Color.white.opacity(depth.overlayOpacity)
+                  : Color.black.opacity(depth.overlayOpacity * 0.03)
+              )
               .allowsHitTesting(false)
           }
         }
@@ -83,16 +87,20 @@ private struct GlassEffectModifier: ViewModifier {
       content
         .background {
           RoundedRectangle(cornerRadius: cornerRadius)
-            .fill(.ultraThinMaterial)
+            .fill(colorScheme == .dark ? .ultraThinMaterial : .thinMaterial)
         }
         .overlay {
           RoundedRectangle(cornerRadius: cornerRadius)
             .strokeBorder(gradientBorder, lineWidth: 0.5)
         }
         .overlay {
-          if depth != .base && colorScheme == .dark {
+          if depth != .base {
             RoundedRectangle(cornerRadius: cornerRadius)
-              .fill(Color.white.opacity(depth.overlayOpacity))
+              .fill(
+                colorScheme == .dark
+                  ? Color.white.opacity(depth.overlayOpacity)
+                  : Color.black.opacity(depth.overlayOpacity * 0.03)
+              )
               .allowsHitTesting(false)
           }
         }

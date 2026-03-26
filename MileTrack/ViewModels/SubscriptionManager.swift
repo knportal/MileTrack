@@ -117,13 +117,43 @@ final class SubscriptionManager: ObservableObject {
   func refreshEntitlements() async {
     var best: Transaction?
     let now = Date()
+    #if DEBUG
+    var debugTransactionCount = 0
+    var debugUnverifiedCount = 0
+    #endif
 
     for await result in Transaction.currentEntitlements {
       guard !Task.isCancelled else { break }
-      guard case .verified(let transaction) = result else { continue }
+      
+      #if DEBUG
+      debugTransactionCount += 1
+      #endif
+      
+      guard case .verified(let transaction) = result else {
+        #if DEBUG
+        debugUnverifiedCount += 1
+        #endif
+        continue
+      }
+      
       guard SubscriptionProductIDs.all.contains(transaction.productID) else { continue }
-      guard transaction.revocationDate == nil else { continue }
-      if let expiry = transaction.expirationDate, expiry <= now { continue }
+      guard transaction.revocationDate == nil else {
+        #if DEBUG
+        print("[SubscriptionManager] Skipping revoked transaction: \(transaction.productID)")
+        #endif
+        continue
+      }
+      
+      if let expiry = transaction.expirationDate, expiry <= now {
+        #if DEBUG
+        print("[SubscriptionManager] Skipping expired transaction: \(transaction.productID), expired: \(expiry)")
+        #endif
+        continue
+      }
+
+      #if DEBUG
+      print("[SubscriptionManager] Found valid transaction: \(transaction.productID), expiry: \(transaction.expirationDate?.description ?? "none")")
+      #endif
 
       // For subscriptions, currentEntitlements should already be active.
       // If multiple are present, prefer the one with the latest expiration date (or purchase date).
@@ -137,6 +167,10 @@ final class SubscriptionManager: ObservableObject {
         best = transaction
       }
     }
+
+    #if DEBUG
+    print("[SubscriptionManager] Entitlements check complete: \(debugTransactionCount) total, \(debugUnverifiedCount) unverified, best: \(best?.productID ?? "none")")
+    #endif
 
     if let best {
       status = SubscriptionStatus(tier: .pro, isAnnual: best.productID == SubscriptionProductIDs.proAnnual)
@@ -199,10 +233,20 @@ final class SubscriptionManager: ObservableObject {
 
     do {
       try await AppStore.sync()
-      lastErrorMessage = nil
       await refreshEntitlements()
+      
+      // Check if we actually found a subscription after sync
+      if status.tier == .pro {
+        lastErrorMessage = nil
+      } else {
+        // No subscription found - provide helpful message
+        lastErrorMessage = "No active subscription found. If you recently purchased, please wait a few minutes and try again."
+      }
     } catch {
-      lastErrorMessage = "Restore failed. Please try again."
+      #if DEBUG
+      print("[SubscriptionManager] Restore error: \(error.localizedDescription)")
+      #endif
+      lastErrorMessage = "Restore failed: \(error.localizedDescription). Please check your internet connection and try again."
     }
   }
 
