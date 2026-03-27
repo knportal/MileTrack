@@ -60,6 +60,7 @@ final class SubscriptionManager: ObservableObject {
       guard let self else { return }
 
       await self.loadProducts()
+      try? await AppStore.sync()
       await self.refreshEntitlements()
 
       for await result in Transaction.updates {
