@@ -71,7 +71,7 @@ struct ExpenseCalculation {
 }
 
 /// Service for calculating trip expenses
-final class ExpenseCalculator {
+struct ExpenseCalculator {
   
   /// Calculate expense for a single trip using the appropriate rate
   func calculateExpense(
