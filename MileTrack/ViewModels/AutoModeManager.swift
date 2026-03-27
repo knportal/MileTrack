@@ -538,7 +538,7 @@ final class AutoModeManager: ObservableObject {
 #if DEBUG
         print("[AutoMode] start snapped to saved location \"\(match.location.name)\" (\(Int(match.distance))m away)")
 #endif
-        logger.log("tracking", "start snapped to \"\(match.location.name)\" (\(Int(match.distance))m)")
+        logger.log("tracking", "start snapped to saved location (\(Int(match.distance))m)")
       } else {
         let task = Task { [weak self] in
           guard let self else { return }
@@ -571,7 +571,7 @@ final class AutoModeManager: ObservableObject {
 #if DEBUG
         print("[AutoMode] end snapped to saved location \"\(match.location.name)\" (\(Int(match.distance))m away)")
 #endif
-        logger.log("tracking", "end snapped to \"\(match.location.name)\" (\(Int(match.distance))m)")
+        logger.log("tracking", "end snapped to saved location (\(Int(match.distance))m)")
       } else {
         let task = Task { [weak self] in
           guard let self else { return }

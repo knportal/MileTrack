@@ -188,7 +188,7 @@ final class ExportService {
   func writeCSVToTemporaryFile(csv: String, filename: String) throws -> URL {
     let sanitized = filename.replacingOccurrences(of: "/", with: "-")
     let url = FileManager.default.temporaryDirectory.appendingPathComponent(sanitized).appendingPathExtension("csv")
-    try csv.data(using: .utf8)?.write(to: url, options: [.atomic])
+    try csv.data(using: .utf8)?.write(to: url, options: [.atomic, .completeFileProtection])
     return url
   }
 
@@ -227,9 +227,14 @@ final class ExportService {
 
   private func escapeCSV(_ input: String) -> String {
     // RFC 4180-ish: wrap in quotes if contains comma, quote, or newline; escape quotes by doubling.
-    let needsQuotes = input.contains(",") || input.contains("\"") || input.contains("\n") || input.contains("\r")
-    if !needsQuotes { return input }
-    let escaped = input.replacingOccurrences(of: "\"", with: "\"\"")
+    // Also guard against spreadsheet formula injection (DDE attacks) by prefixing dangerous chars.
+    var sanitized = input
+    if let first = sanitized.first, "=+-@\t\r".contains(first) {
+      sanitized = "'" + sanitized
+    }
+    let needsQuotes = sanitized.contains(",") || sanitized.contains("\"") || sanitized.contains("\n") || sanitized.contains("\r")
+    if !needsQuotes { return sanitized }
+    let escaped = sanitized.replacingOccurrences(of: "\"", with: "\"\"")
     return "\"\(escaped)\""
   }
 

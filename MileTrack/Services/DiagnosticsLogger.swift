@@ -105,7 +105,7 @@ final class DiagnosticsLogger {
     ensureDirectoryExists()
 
     if !fileManager.fileExists(atPath: fileURL.path) {
-      try? line.data(using: .utf8)?.write(to: fileURL, options: [.atomic])
+      try? line.data(using: .utf8)?.write(to: fileURL, options: [.atomic, .completeFileProtection])
       return
     }
 

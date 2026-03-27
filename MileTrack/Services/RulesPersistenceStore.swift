@@ -31,7 +31,7 @@ final class RulesPersistenceStore {
   func saveRules(_ rules: [TripRule]) throws {
     try ensureDirectoryExists()
     let data = try encoder.encode(rules)
-    try data.write(to: fileURL, options: [.atomic])
+    try data.write(to: fileURL, options: [.atomic, .completeFileProtection])
   }
 
   func reset() throws {

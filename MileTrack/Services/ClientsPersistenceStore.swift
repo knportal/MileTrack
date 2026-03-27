@@ -30,7 +30,7 @@ final class ClientsPersistenceStore {
   func saveClients(_ clients: [String]) throws {
     try ensureDirectoryExists()
     let data = try encoder.encode(clients)
-    try data.write(to: fileURL, options: [.atomic])
+    try data.write(to: fileURL, options: [.atomic, .completeFileProtection])
   }
 
   func reset() throws {

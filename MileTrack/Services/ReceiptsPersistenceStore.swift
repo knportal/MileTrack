@@ -31,14 +31,14 @@ final class ReceiptsPersistenceStore {
   func saveReceipts(_ receipts: [TripReceipt]) throws {
     try ensureDirectoriesExist()
     let data = try encoder.encode(receipts)
-    try data.write(to: metadataURL, options: [.atomic])
+    try data.write(to: metadataURL, options: [.atomic, .completeFileProtection])
   }
   
   func saveImage(_ imageData: Data, fileName: String) throws -> String {
     try ensureDirectoriesExist()
     let sanitizedFileName = sanitizeFileName(fileName)
     let fileURL = imagesDirectory.appendingPathComponent(sanitizedFileName)
-    try imageData.write(to: fileURL, options: [.atomic])
+    try imageData.write(to: fileURL, options: [.atomic, .completeFileProtection])
     return sanitizedFileName
   }
   

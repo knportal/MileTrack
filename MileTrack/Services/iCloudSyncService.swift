@@ -212,7 +212,7 @@ final class iCloudSyncService: ObservableObject {
         writingItemAt: fileURL, options: .forReplacing,
         error: &coordinatorError
       ) { url in
-        do { try data.write(to: url, options: .atomic) }
+        do { try data.write(to: url, options: [.atomic, .completeFileProtection]) }
         catch { writeError = error }
       }
       if let err = coordinatorError ?? writeError { throw err }

@@ -33,7 +33,7 @@ final class MileageRatesPersistenceStore {
   func saveRates(_ rates: [MileageRate]) throws {
     try ensureDirectoryExists()
     let data = try encoder.encode(rates)
-    try data.write(to: fileURL, options: [.atomic])
+    try data.write(to: fileURL, options: [.atomic, .completeFileProtection])
   }
   
   func reset() throws {

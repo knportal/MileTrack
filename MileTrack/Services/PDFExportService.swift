@@ -36,7 +36,7 @@ final class PDFExportService {
       .appendingPathComponent(sanitized)
       .appendingPathExtension("pdf")
 
-    try data.write(to: url, options: [.atomic])
+    try data.write(to: url, options: [.atomic, .completeFileProtection])
     return url
   }
 

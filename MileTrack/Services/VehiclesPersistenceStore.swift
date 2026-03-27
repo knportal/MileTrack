@@ -30,7 +30,7 @@ final class VehiclesPersistenceStore {
   func saveVehicles(_ vehicles: [NamedVehicle]) throws {
     try ensureDirectoryExists()
     let data = try encoder.encode(vehicles)
-    try data.write(to: fileURL, options: [.atomic])
+    try data.write(to: fileURL, options: [.atomic, .completeFileProtection])
   }
 
   func reset() throws {

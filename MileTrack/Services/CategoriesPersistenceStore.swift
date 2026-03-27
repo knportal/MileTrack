@@ -31,7 +31,7 @@ final class CategoriesPersistenceStore {
   func saveCategories(_ categories: [String]) throws {
     try ensureDirectoryExists()
     let data = try encoder.encode(categories)
-    try data.write(to: fileURL, options: [.atomic])
+    try data.write(to: fileURL, options: [.atomic, .completeFileProtection])
   }
 
   func reset() throws {

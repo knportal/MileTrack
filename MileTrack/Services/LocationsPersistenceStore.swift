@@ -30,7 +30,7 @@ final class LocationsPersistenceStore {
   func saveLocations(_ locations: [NamedLocation]) throws {
     try ensureDirectoryExists()
     let data = try encoder.encode(locations)
-    try data.write(to: fileURL, options: [.atomic])
+    try data.write(to: fileURL, options: [.atomic, .completeFileProtection])
   }
 
   func reset() throws {
