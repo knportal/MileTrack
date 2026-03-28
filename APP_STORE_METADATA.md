@@ -54,28 +54,27 @@ You need screenshots for **6.7" (iPhone 15 Pro Max)** and **6.5" (iPhone 11 Pro 
 - Make sure the status bar shows a realistic time and full signal/battery
 - No placeholder text — everything should look real
 
-## Review Notes (already set via API)
+## Review Notes
 
 ```
 TESTING NOTES
 - Auto Mode enabled by default — grant "Always" location permission when prompted
 - To test: take a short drive (>0.3 mi), trip appears in Inbox within 2 min of stopping
-- Manual trip: tap floating + button
+- Manual trip: tap floating + button on any tab
 - Subscriptions: ai.plenitudo.MileTrack.pro.monthly ($5.99), ai.plenitudo.MileTrack.pro.annual ($39.99)
-- No demo account required
+- No demo account required — app is free with optional Pro subscription
 
-UNIQUE FEATURES
+FEATURES (4 tabs: Home, Inbox, Reports, Settings)
 1. Auto Mode: Settings > Auto Mode (ON) > drive > trip auto-detected
 2. Inbox: Swipe right=confirm, left=dismiss. Tap circles to merge trips.
-3. Reports: Charts + filters + PDF/CSV export (Pro).
-4. Named Locations: Settings > Locations > save Home/Work
-5. Rules: Settings > Rules > auto-categorize by route
-6. Expenses: Expenses tab > attach receipts
+3. Reports: Charts + filters + CSV export (free) + PDF export (Pro)
+4. Named Locations: Settings > Locations > save Home/Work for auto-snapping
+5. Rules: Settings > Rules > auto-categorize by route (Pro)
 
-PRIVACY: All data on-device. No analytics, no ads.
+PRIVACY: All data on-device + optional iCloud backup. No analytics, no ads, no accounts.
 Contact: hello@plenitudo.ai
 ```
 
 ---
 
-**Last Updated:** March 14, 2026
+**Last Updated:** March 28, 2026

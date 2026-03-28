@@ -78,10 +78,10 @@
         }
 
         .highlight {
-            background-color: #fff3cd;
+            background-color: #e8f5e9;
             padding: 15px;
             border-radius: 5px;
-            border-left: 4px solid #ffc107;
+            border-left: 4px solid #4caf50;
             margin: 20px 0;
         }
 
@@ -99,185 +99,103 @@
     <div class="container">
         <div class="header">
             <h1>Privacy Policy</h1>
-            <p class="last-updated">Last Updated: February 23, 2026</p>
+            <p class="last-updated">Last Updated: March 28, 2026</p>
         </div>
 
-        <p>MileTrack by Plenitudo ("we," "us," "our," or "Company") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our mobile application and related services (the "Service").</p>
+        <p>MileTrack by Plenitudo ("we," "us," or "our") is committed to protecting your privacy. This Privacy Policy explains how your information is handled when you use the MileTrack iOS application (the "App").</p>
 
-        <h2>1. Information We Collect</h2>
+        <div class="highlight">
+            <strong>Key Point:</strong> MileTrack is a privacy-first app. All your data stays on your device. We have no servers, no accounts, no analytics, and no ads. We never see your trip data.
+        </div>
 
-        <h3 style="color: #333; margin-top: 20px; margin-bottom: 10px;">Trip and Mileage Data</h3>
-        <p>The primary purpose of MileTrack by Plenitudo is to track your vehicle trips and mileage. When you use our Service, we collect:</p>
+        <h2>1. Information the App Stores</h2>
+
+        <p>MileTrack stores the following information <strong>locally on your device</strong>:</p>
         <ul>
-            <li>Trip details (date, time, distance, starting location, ending location)</li>
-            <li>Mileage information</li>
-            <li>Trip purpose or category (if you choose to add this)</li>
-            <li>GPS coordinates and route information</li>
+            <li><strong>Trip data:</strong> Date, distance, duration, start/end locations (GPS coordinates and addresses), category, purpose, client/organization, vehicle, and notes</li>
+            <li><strong>Saved locations:</strong> Named places you create (e.g., "Home", "Office") with addresses and coordinates</li>
+            <li><strong>Settings:</strong> Your preferences, categories, clients, vehicles, mileage rates, and auto-categorization rules</li>
+            <li><strong>Receipts:</strong> Expense receipt metadata and images you attach to trips</li>
+            <li><strong>Diagnostics:</strong> An on-device log of tracking events (no location names or PII) for troubleshooting</li>
         </ul>
 
-        <h3 style="color: #333; margin-top: 20px; margin-bottom: 10px;">Account Information</h3>
-        <p>To create and maintain your MileTrack by Plenitudo account, we collect:</p>
+        <h2>2. iCloud Sync</h2>
+
+        <p>If you have iCloud Drive enabled, MileTrack backs up your trip data to your private iCloud container. This data is:</p>
         <ul>
-            <li>Email address</li>
-            <li>Name</li>
-            <li>Account credentials (password)</li>
-            <li>Profile information you voluntarily provide</li>
+            <li>Encrypted by Apple in transit and at rest on Apple's servers</li>
+            <li>Stored in your personal iCloud account — we cannot access it</li>
+            <li>Used solely to restore your trips if you reinstall the app or switch devices</li>
+        </ul>
+        <p>You can disable iCloud Drive for MileTrack in your device's Settings > Apple ID > iCloud.</p>
+
+        <h2>3. Location Data</h2>
+
+        <p>MileTrack uses your device's GPS to automatically detect and track trips. Location data is:</p>
+        <ul>
+            <li>Processed entirely on your device</li>
+            <li>Never sent to our servers (we have no servers)</li>
+            <li>Used only to calculate trip distance and determine start/end addresses via Apple's built-in geocoding service</li>
+            <li>Stored as part of your trip records on your device</li>
+        </ul>
+        <p>You can revoke location permission at any time in Settings > Privacy > Location Services > MileTrack.</p>
+
+        <h2>4. Motion Data</h2>
+
+        <p>MileTrack uses your device's motion sensors (accelerometer) to help distinguish driving from other activities. This data is processed in real-time on your device and is not stored or transmitted.</p>
+
+        <h2>5. Subscriptions</h2>
+
+        <p>MileTrack offers optional Pro subscriptions managed entirely through Apple's App Store. We do not collect or store any payment information. All billing is handled by Apple. See Apple's privacy policy for details on how Apple handles purchase data.</p>
+
+        <h2>6. What We Do NOT Collect</h2>
+
+        <p>MileTrack does not:</p>
+        <ul>
+            <li>Create user accounts or require login</li>
+            <li>Collect email addresses, names, or personal identifiers</li>
+            <li>Use analytics, tracking pixels, or advertising SDKs</li>
+            <li>Share, sell, or transmit your data to any third party</li>
+            <li>Use cookies or web tracking technologies</li>
+            <li>Send marketing emails or push notifications</li>
+            <li>Contain any third-party code or SDKs</li>
         </ul>
 
-        <h3 style="color: #333; margin-top: 20px; margin-bottom: 10px;">Device Information</h3>
-        <p>We automatically collect certain information about your device when you use our Service:</p>
+        <h2>7. Data Export and Deletion</h2>
+
         <ul>
-            <li>Device type and model</li>
-            <li>Operating system version</li>
-            <li>App version</li>
-            <li>Unique device identifiers</li>
+            <li><strong>Export:</strong> You can export all your trip data as CSV or PDF from the Reports tab at any time</li>
+            <li><strong>Delete:</strong> You can delete individual trips, or delete all data from Settings > Privacy & Data > Delete All Data</li>
+            <li><strong>Uninstall:</strong> Deleting the app removes all local data. iCloud backup data can be removed via Settings > Apple ID > iCloud > Manage Storage</li>
         </ul>
 
-        <h3 style="color: #333; margin-top: 20px; margin-bottom: 10px;">Usage Information</h3>
-        <p>We collect analytics data about how you interact with our Service to improve functionality:</p>
+        <h2>8. Data Security</h2>
+
+        <p>Your data is protected by:</p>
         <ul>
-            <li>Features you use</li>
-            <li>Actions you take</li>
-            <li>Error logs and crash reports</li>
+            <li>iOS file protection (NSFileProtectionComplete) — data is encrypted when your device is locked</li>
+            <li>App sandbox isolation — no other app can access MileTrack's data</li>
+            <li>iCloud encryption for synced data (Apple-managed)</li>
         </ul>
-
-        <h2>2. How We Use Your Information</h2>
-
-        <p>We use the information we collect for the following purposes:</p>
-        <ul>
-            <li><strong>Service Delivery:</strong> To provide, maintain, and improve MileTrack by Plenitudo and its features</li>
-            <li><strong>Account Management:</strong> To create and manage your account, authenticate users, and provide customer support</li>
-            <li><strong>Analytics:</strong> To understand how users interact with our Service and optimize performance</li>
-            <li><strong>Communication:</strong> To send you technical updates, security alerts, and customer support messages</li>
-            <li><strong>Legal Compliance:</strong> To comply with applicable laws, regulations, and legal processes</li>
-            <li><strong>Safety and Security:</strong> To detect and prevent fraud, security incidents, and other harmful activities</li>
-            <li><strong>Marketing (with consent):</strong> To send promotional materials (only if you opt-in)</li>
-        </ul>
-
-        <h2>3. Sharing Your Information</h2>
-
-        <p>We do not sell, trade, or rent your personal information to third parties. However, we may share information in the following circumstances:</p>
-        <ul>
-            <li><strong>Service Providers:</strong> We may share information with vendors who assist us in operating our Service (cloud hosting, analytics, payment processing)</li>
-            <li><strong>Legal Requirements:</strong> We may disclose information if required by law or if we believe in good faith that disclosure is necessary to protect our rights, your safety, or the safety of others</li>
-            <li><strong>Business Transfers:</strong> If MileTrack by Plenitudo is involved in a merger, acquisition, or sale of assets, your information may be transferred as part of that transaction</li>
-            <li><strong>User Consent:</strong> We may share information when you explicitly consent to such sharing</li>
-        </ul>
-
-        <h2>4. Data Retention</h2>
-
-        <p>We retain your personal information for as long as necessary to provide our Service and fulfill the purposes outlined in this Privacy Policy. Specifically:</p>
-        <ul>
-            <li>Trip and mileage data are retained for your account lifetime, unless you request deletion</li>
-            <li>Account information is retained while your account is active</li>
-            <li>Deleted trips and closed accounts are purged from our active systems within 30 days</li>
-            <li>Backup copies may be retained for up to 90 days for disaster recovery purposes</li>
-        </ul>
-
-        <p>You may request deletion of your data at any time by contacting us (see Section 10).</p>
-
-        <h2>5. Data Security</h2>
-
-        <p>We implement appropriate technical and organizational measures to protect your personal information from unauthorized access, alteration, disclosure, or destruction. These include:</p>
-        <ul>
-            <li>End-to-end encryption for sensitive data in transit</li>
-            <li>Secure authentication mechanisms</li>
-            <li>Regular security audits and vulnerability assessments</li>
-            <li>Employee access controls and confidentiality agreements</li>
-            <li>Secure data storage and backup systems</li>
-        </ul>
-
-        <p>While we implement safeguards, no system is completely secure. Please protect your account credentials and notify us immediately if you suspect unauthorized access.</p>
-
-        <h2>6. Your Privacy Rights</h2>
-
-        <h3 style="color: #333; margin-top: 20px; margin-bottom: 10px;">GDPR Rights (European Users)</h3>
-        <p>If you are located in the European Union or European Economic Area, you have the following rights:</p>
-        <ul>
-            <li><strong>Right of Access:</strong> You can request a copy of your personal data</li>
-            <li><strong>Right to Correction:</strong> You can request correction of inaccurate information</li>
-            <li><strong>Right to Deletion:</strong> You can request deletion of your data ("Right to be Forgotten")</li>
-            <li><strong>Right to Data Portability:</strong> You can request your data in a portable format</li>
-            <li><strong>Right to Restrict Processing:</strong> You can limit how we use your data</li>
-            <li><strong>Right to Object:</strong> You can object to certain processing activities</li>
-            <li><strong>Right to Lodge a Complaint:</strong> You can file a complaint with your local data protection authority</li>
-        </ul>
-
-        <h3 style="color: #333; margin-top: 20px; margin-bottom: 10px;">CCPA Rights (California Residents)</h3>
-        <p>If you are a California resident, you have the right to:</p>
-        <ul>
-            <li><strong>Know What Data We Collect:</strong> Request information about the categories and specific personal information we collect</li>
-            <li><strong>Delete Your Data:</strong> Request deletion of personal information we collected from you</li>
-            <li><strong>Opt-Out of Data Sales:</strong> Instruct us not to sell or share your personal information (MileTrack by Plenitudo does not currently sell personal data)</li>
-            <li><strong>Non-Discrimination:</strong> You will not receive discriminatory treatment for exercising your CCPA rights</li>
-        </ul>
-
-        <h3 style="color: #333; margin-top: 20px; margin-bottom: 10px;">General Rights</h3>
-        <p>You may also:</p>
-        <ul>
-            <li>Update or correct your account information at any time through the app</li>
-            <li>Download your data in a standard format</li>
-            <li>Opt out of marketing communications</li>
-            <li>Delete your account, which will remove your data from our active systems</li>
-        </ul>
-
-        <p>To exercise any of these rights, please contact us using the information in Section 10.</p>
-
-        <h2>7. Cookies and Tracking Technologies</h2>
-
-        <p>MileTrack by Plenitudo may use cookies and similar tracking technologies to enhance your experience. Specifically:</p>
-        <ul>
-            <li>We use analytics cookies to understand how users interact with our Service</li>
-            <li>We use session cookies to maintain your login state</li>
-            <li>You can disable cookies through your device settings, though this may impact functionality</li>
-        </ul>
-
-        <p>We do not use tracking technologies to track your location outside the app (only within the app for trip tracking purposes you authorize).</p>
-
-        <h2>8. Third-Party Links</h2>
-
-        <p>Our Service may contain links to third-party websites and services that are not operated by MileTrack by Plenitudo. This Privacy Policy does not apply to third-party services, and we are not responsible for their privacy practices. We encourage you to review their privacy policies before providing personal information.</p>
 
         <h2>9. Children's Privacy</h2>
 
-        <p>MileTrack by Plenitudo is not intended for users under the age of 13 (or the applicable minimum age in your jurisdiction). We do not knowingly collect personal information from children under 13. If we become aware that a child under 13 has provided us with personal information, we will take steps to delete such information and terminate the child's account.</p>
+        <p>MileTrack is not intended for users under the age of 13. We do not knowingly collect information from children.</p>
 
-        <p>Parents or guardians who believe their child has provided information to MileTrack by Plenitudo should contact us immediately.</p>
+        <h2>10. Changes to This Policy</h2>
 
-        <h2>10. Contact Us</h2>
+        <p>We may update this Privacy Policy from time to time. Changes will be reflected by updating the "Last Updated" date above. Continued use of the App after changes constitutes acceptance of the revised policy.</p>
 
-        <p>If you have questions about this Privacy Policy, wish to exercise your privacy rights, or have concerns about our privacy practices, please contact us:</p>
+        <h2>11. Contact Us</h2>
 
         <div class="contact-section">
-            <p><strong>Email:</strong> wilbnyg@gmail.com</p>
-            <p><strong>Company Name:</strong> MileTrack by Plenitudo</p>
-            <p>We will respond to your inquiry within 30 days or as required by applicable law.</p>
+            <p><strong>Email:</strong> hello@plenitudo.ai</p>
+            <p><strong>Developer:</strong> Plenitudo AI</p>
+            <p>We will respond to privacy inquiries within 30 days.</p>
         </div>
-
-        <h2>11. Changes to This Privacy Policy</h2>
-
-        <p>We may update this Privacy Policy from time to time to reflect changes in our practices, technology, legal requirements, or other factors. We will notify you of any material changes by updating the "Last Updated" date at the top of this policy. Your continued use of MileTrack by Plenitudo following the posting of revised Privacy Policy means that you accept and agree to the changes.</p>
-
-        <div class="highlight">
-            <strong>Note:</strong> We encourage you to review this Privacy Policy periodically to stay informed about how we are protecting your information.
-        </div>
-
-        <h2>12. Additional Information by Jurisdiction</h2>
-
-        <h3 style="color: #333; margin-top: 20px; margin-bottom: 10px;">European Union (GDPR)</h3>
-        <p>Our legal basis for processing your personal information is primarily:</p>
-        <ul>
-            <li>Performance of our contract with you (providing the Service)</li>
-            <li>Your consent</li>
-            <li>Compliance with legal obligations</li>
-            <li>Our legitimate interests</li>
-        </ul>
-
-        <h3 style="color: #333; margin-top: 20px; margin-bottom: 10px;">Data Processing Addendum</h3>
-        <p>For business users or those requiring a Data Processing Addendum (DPA) for GDPR compliance, please contact us.</p>
 
         <footer>
-            <p>&copy; 2026 MileTrack by Plenitudo. All rights reserved. This Privacy Policy is effective as of February 23, 2026.</p>
+            <p>&copy; 2026 MileTrack by Plenitudo. All rights reserved.</p>
         </footer>
     </div>
 </body>

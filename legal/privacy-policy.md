@@ -1,46 +1,51 @@
-# MileTrack Privacy Policy (Template)
+# MileTrack by Plenitudo — Privacy Policy
 
-**Last Updated:** {{DATE}}
-**Effective Date:** {{DATE}}
+**Last Updated:** March 28, 2026
 
-## Introduction
+MileTrack is a privacy-first app. All your data stays on your device. We have no servers, no accounts, no analytics, and no ads.
 
-MileTrack ("we", "our", "us") is committed to protecting your privacy. This document explains what information the MileTrack iPhone app collects, how it is used, and your choices.
+## What the App Stores (on your device only)
 
-## Information We Collect
+- **Trip data:** Date, distance, duration, locations, category, purpose, client, vehicle, notes
+- **Saved locations:** Named places (e.g., "Home") with addresses and coordinates
+- **Settings:** Preferences, categories, clients, vehicles, mileage rates, rules
+- **Receipts:** Expense metadata and images attached to trips
+- **Diagnostics:** On-device tracking event log (no PII) for troubleshooting
 
-- **User-provided information**: {{USER_PROVIDED_INFO_DESCRIPTION}}
-- **Device/app diagnostics** (optional): crash logs, performance metrics (as provided by Apple/OS settings)
-- **Usage data** (optional): feature usage events, only if you enable analytics
+## iCloud Sync
 
-## How We Use Information
+Trip data is backed up to your private iCloud container if iCloud Drive is enabled. This data is encrypted by Apple and stored in your personal iCloud account. We cannot access it. Disable via Settings > Apple ID > iCloud.
 
-- **Provide core features**: logging, viewing, and managing your mileage data
-- **Improve reliability**: debug crashes and performance issues
-- **Support**: respond to user requests
+## Location & Motion Data
 
-## Data Storage & Security
+GPS is used to detect and track trips. Motion sensors help distinguish driving. All processing happens on-device. Location data is never sent to any server. You can revoke permission in iOS Settings at any time.
 
-- **Primary storage**: {{PRIMARY_STORAGE}} (e.g. on-device, iCloud, CloudKit)
-- **Security**: data is protected by iOS security features; if cloud sync is enabled, Apple’s encryption applies
+## Subscriptions
 
-## Data Sharing
+Pro subscriptions are managed by Apple's App Store. We do not collect payment information.
 
-We do not sell personal information. We do not share your data with advertisers.
+## What We Do NOT Collect
 
-We may share information only when required by law or to protect our rights and users.
+- No accounts, logins, emails, or personal identifiers
+- No analytics, tracking, or advertising SDKs
+- No data sharing with third parties
+- No cookies or web tracking
+- No third-party code or SDKs
 
-## Your Choices
+## Data Export & Deletion
 
-- **Permissions**: you can grant/revoke in iOS Settings
-- **Delete data**: {{DATA_DELETION_INSTRUCTIONS}}
-- **Delete the app**: removes local app data (cloud-synced data may remain depending on your iCloud settings)
+- Export all trips as CSV or PDF from the Reports tab
+- Delete individual trips or all data from Settings > Privacy & Data
+- Uninstalling removes all local data; iCloud data via Settings > Apple ID > iCloud > Manage Storage
+
+## Data Security
+
+- iOS file protection (encrypted when device is locked)
+- App sandbox isolation
+- iCloud encryption (Apple-managed)
 
 ## Contact
 
-- **Support**: {{SUPPORT_EMAIL}}
-- **Privacy**: {{PRIVACY_EMAIL}}
-- **Website**: {{DOMAIN}}
+Email: hello@plenitudo.ai
 
-> This is a starter template and should be reviewed for your specific data flows and compliance needs.
-
+© 2026 MileTrack by Plenitudo. All rights reserved.
